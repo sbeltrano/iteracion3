@@ -291,6 +291,8 @@ public class AlohaTransactionManager {
 			
 			
 			
+			
+			
 			daoReserva.setConn(conn);
 			daoReserva.addReserva(reserva);
 			
@@ -821,9 +823,9 @@ public class AlohaTransactionManager {
 	}
 	
 	/**
-	 * Metodo que modela la transaccion que busca el bebedor en la base de datos que tiene el ID dado por parametro. <br/>
-	 * @param name -id del bebedor a buscar. id != null
-	 * @return Bebedor - Bebedor que se obtiene como resultado de la consulta.
+	 * Metodo que modela la transaccion que busca el cliente en la base de datos que tiene el ID dado por parametro. <br/>
+	 * @param name -id del cliente a buscar. id != null
+	 * @return Cliente - cliente que se obtiene como resultado de la consulta.
 	 * @throws Exception -  cualquier error que se genere durante la transaccion
 	 */
 	public Cliente getClienteById(int id) throws Exception {
@@ -863,6 +865,189 @@ public class AlohaTransactionManager {
 			}
 		}
 		return cliente;
+	}
+	
+	/**
+	 * Metodo que modela la transaccion que busca el apartamento en la base de datos que tiene el ID dado por parametro. <br/>
+	 * @param name -id del cliente a buscar. id != null
+	 * @return Apto - apartamento que se obtiene como resultado de la consulta.
+	 * @throws Exception -  cualquier error que se genere durante la transaccion
+	 */
+	public Apartamento getApartamentoById(int id) throws Exception {
+		DAOApartamento daoApto = new DAOApartamento();
+		Apartamento apto = null;
+		try 
+		{
+			this.conn = darConexion();
+			daoApto.setConn(conn);
+			apto = daoApto.findAptoByid(id);
+			
+			if(apto == null)
+			{
+				throw new Exception("El cliente con el id = " + id + " no se encuentra persistido en la base de datos.");				
+			}
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoApto.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return apto;
+	}
+	
+	/**
+	 * Metodo que modela la transaccion que busca la vivienda en la base de datos que tiene el ID dado por parametro. <br/>
+	 * @param id -id de la vivienda a buscar. id != null
+	 * @return vivienda - vivienda que se obtiene como resultado de la consulta.
+	 * @throws Exception -  cualquier error que se genere durante la transaccion
+	 */
+	public Vivienda getViviendaById(int id) throws Exception {
+		DAOVivienda daoApto = new DAOVivienda();
+		Vivienda vivienda = null;
+		try 
+		{
+			this.conn = darConexion();
+			daoApto.setConn(conn);
+			vivienda = daoApto.findViviendaById(id);
+			
+			if(vivienda == null)
+			{
+				throw new Exception("El cliente con el id = " + id + " no se encuentra persistido en la base de datos.");				
+			}
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoApto.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return vivienda;
+	}
+	
+	/**
+	 * Metodo que modela la transaccion que busca la Habitacion en la base de datos que tiene el ID dado por parametro. <br/>
+	 * @param id -id de la vivienda a buscar. id != null
+	 * @return Habitacion - Habitacion que se obtiene como resultado de la consulta.
+	 * @throws Exception -  cualquier error que se genere durante la transaccion
+	 */
+	public Habitacion getHabitacionById(int id) throws Exception {
+		DAOHabitacion daoHabitacion = new DAOHabitacion();
+		Habitacion habitacion = null;
+		try 
+		{
+			this.conn = darConexion();
+			daoHabitacion.setConn(conn);
+			habitacion = daoHabitacion.findHabitacionById(id);
+			
+			if(habitacion == null)
+			{
+				throw new Exception("El cliente con el id = " + id + " no se encuentra persistido en la base de datos.");				
+			}
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoHabitacion.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return habitacion;
+	}
+	
+	/**
+	 * Metodo que modela la transaccion que busca el cliente en la base de datos que tiene el ID dado por parametro. <br/>
+	 * @param name -id del bebedor a buscar. id != null
+	 * @return Bebedor - Bebedor que se obtiene como resultado de la consulta.
+	 * @throws Exception -  cualquier error que se genere durante la transaccion
+	 */
+	public List<Reserva> getReservasClientes(int id) throws Exception {
+		DAOReserva daoReserva = new DAOReserva();
+		List<Reserva> reservas = null;
+		try 
+		{
+			this.conn = darConexion();
+			daoReserva.setConn(conn);
+			reservas = daoReserva.getReservasCliente(id);
+			if(reservas == null)
+			{
+				throw new Exception("El cliente con el id = " + id + " no se encuentra persistido en la base de datos.");				
+			}
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoReserva.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return reservas;
 	}
 	
 
@@ -1105,15 +1290,14 @@ public class AlohaTransactionManager {
 	 * @param Cliente - bebedor a eliminar. bebedor != null
 	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
 	 */
-	public void deleteReserva(Reserva reserva) throws Exception 
+	public void deleteReserva(int idReserva) throws Exception 
 	{
 		DAOReserva daoBebedor = new DAOReserva( );
 		try
 		{
 			this.conn = darConexion();
 			daoBebedor.setConn( conn );
-			
-			daoBebedor.cancelarReserva(reserva);
+			daoBebedor.cancelarReserva(idReserva);
 
 		}
 		catch (SQLException sqlException) {
@@ -1140,5 +1324,19 @@ public class AlohaTransactionManager {
 			}
 		}	
 	}
+	
+	
+	//---------------------------------------------------------//---------------------------------------------------------
+	//								METODOS DE MODIFICACION MASIVA
+	//---------------------------------------------------------//---------------------------------------------------------
+	
+	
+
+	
+	
+	
+	
+	
+	
 	
 }

@@ -1,5 +1,7 @@
 package rest;
 
+import java.util.List;
+
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -56,36 +58,7 @@ public class ReservaService {
 	
 	
 			/**
-			 * Metodo Post Que hace una reserva a un . <br/>
-			 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
-			 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/reservas/{{idcliente}}/apartamento/{{idapartamento}} <br/>
-			 * @return	<b>Response Status 200</b> - JSON que contiene la reserva  <br/>
-			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
-			 */			
-			@GET
-			@Path("/{idcliente: \\d+}")
-			@Consumes({ MediaType.APPLICATION_JSON })
-			@Produces({ MediaType.APPLICATION_JSON })
-			public Response getReservasCliente(ContratoApto reserva,@PathParam("idcliente") int idcliente, @PathParam("idapartamento")int idapartamento) {
-				
-				try {
-					System.out.println("entra al post disponibilidad " + reserva.getFechaFinal());
-					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
-					
-					
-					tm.addReserva(reserva, idcliente, idapartamento);
-					
-					
-					return Response.status(200).entity(reserva).build();
-				} 
-				catch (Exception e) {
-					return Response.status(500).entity(doErrorMessage(e)).build();
-				}
-			}
-			
-
-			/**
-			 * Metodo Post Que hace una reserva a un . <br/>
+			 * Metodo Post Que hace una reserva a un apartamento. <br/>
 			 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
 			 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/reservas/{{idcliente}}/apartamento/{{idapartamento}} <br/>
 			 * @return	<b>Response Status 200</b> - JSON que contiene la reserva  <br/>
@@ -144,23 +117,55 @@ public class ReservaService {
 			}
 	
 	
-	
 			
+			/**
+			 * Metodo get que obtiene todas las reservas de un cliente . <br/>
+			 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+			 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/reservas/{{idcliente}} <br/>
+			 * @return	<b>Response Status 200</b> - JSON que contiene las reserva  <br/>
+			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+			 */			
+			@GET
+			@Path("/{idcliente: \\d+}")
+			@Consumes({ MediaType.APPLICATION_JSON })
+			@Produces({ MediaType.APPLICATION_JSON })
+			public Response getReservasCliente(@PathParam("idcliente") int idcliente) {
+				
+				try {
+					
+					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+					
+					List<Reserva> reservas = tm.getReservasClientes(idcliente);
+					
+					
+					return Response.status(200).entity(reservas).build();
+				} 
+				catch (Exception e) {
+					return Response.status(500).entity(doErrorMessage(e)).build();
+				}
+			}
+
+
+			/**
+			 * Metodo que elimina una reserva . <br/>
+			 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+			 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/reservas/{{idreserva}} <br/>
+			 * @return	<b>Response Status 200</b> - JSON que contiene la reserva  <br/>
+			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+			 */		
 			@DELETE
 			@Path("{id: \\d+}")
 			@Consumes({ MediaType.APPLICATION_JSON })
 			@Produces({ MediaType.APPLICATION_JSON })
-			public Response deleteReserva(ContratoHabitacion reserva,@PathParam("id") int id) {
+			public Response deleteReserva(@PathParam("id") int id) {
 				
 				try {
-					System.out.println("entra al post disponibilidad " + reserva.getFechaFinal());
+					
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
+					tm.deleteReserva(id);
 					
-					//tm.addReserva(reserva, 0);
-					
-					
-					return Response.status(200).entity(reserva).build();
+					return Response.status(200).entity(id).build();
 				} 
 				catch (Exception e) {
 					return Response.status(500).entity(doErrorMessage(e)).build();

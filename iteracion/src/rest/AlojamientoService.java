@@ -63,7 +63,7 @@ public class AlojamientoService {
 		/**
 		 * Metodo Post Que registra un hotel. <br/>
 		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
-		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/{{id}}/hotel <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/hotel <br/>
 		 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
 		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 		 */			
@@ -74,7 +74,7 @@ public class AlojamientoService {
 		public Response postHotel(Hotel hotel) {
 			
 			try {
-				System.out.println("entra al post disponibilidad " + hotel.getDisponibilidad());
+				
 				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 				
 				
@@ -91,7 +91,7 @@ public class AlojamientoService {
 		/**
 		 * Metodo Post Que registra un cliente. <br/>
 		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
-		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/{{id}}/apartamento <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/{{idOperador}}/apartamento <br/>
 		 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
 		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 		 */			
@@ -99,12 +99,12 @@ public class AlojamientoService {
 		@Path("{id: \\d+}/apartamento")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public Response postApartamento(Apartamento apto, @PathParam("id")int id) {
+		public Response postApartamento(Apartamento apto, @PathParam("id")int idOperador) {
 			
 			try {
 				System.out.println("entra al post crear ");
 				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
-				tm.addApartamento(apto, id);
+				tm.addApartamento(apto, idOperador);
 				
 				
 				return Response.status(200).entity(apto).build();
@@ -113,7 +113,14 @@ public class AlojamientoService {
 				return Response.status(500).entity(doErrorMessage(e)).build();
 			}
 		}
-		
+
+		/**
+		 * Metodo Post Que registra una vivienda. <br/>
+		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/{{idOperador}}/vivienda <br/>
+		 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
+		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+		 */		
 		@POST
 		@Path("{id: \\d+}/vivienda")
 		@Consumes({ MediaType.APPLICATION_JSON })
@@ -133,8 +140,15 @@ public class AlojamientoService {
 			}
 		}
 		
+		/**
+		 * Metodo Post Que registra una hostal. <br/>
+		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/{{idOperador}}/hostal <br/>
+		 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
+		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+		 */	
 		@POST
-		@Path("/hostal")
+		@Path("{id: \\d+}/hostal")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
 		public Response postHotel(Hostal hostal) {
@@ -169,22 +183,7 @@ public class AlojamientoService {
 			}
 		}
 		
-		
-		@POST
-		@Path("{id: \\d+}/habitacion")
-		@Consumes({ MediaType.APPLICATION_JSON })
-		@Produces({ MediaType.APPLICATION_JSON })
-		public Response postApartamento(Habitacion habitacion,  @PathParam( "id" ) int id) {
-			try {
-				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
-				tm.addHabitacionPersona(habitacion, id);
-				
-				return Response.status(200).entity(habitacion).build();
-			} 
-			catch (Exception e) {
-				return Response.status(500).entity(doErrorMessage(e)).build();
-			}
-		}
+	
 		
 		//-------------//-------------//-------------//-------------
 		//							GETS

@@ -135,6 +135,27 @@ public class DAOVivienda {
 			return viviendas;
 		}
 		
+		public Vivienda findViviendaById(int id) throws SQLException, Exception {
+			Vivienda vivienda = null;
+
+			
+			String sql = String.format( "SELECT * FROM %1$s.VIVIENDA WHERE VIVIENDAID = %2$", USUARIO, id);
+
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			ResultSet rs = prepStmt.executeQuery();
+			
+			System.out.println("depues sql");
+			
+					
+			if (rs.next()) {
+				
+			vivienda = convertResultSetToVivienda(rs);
+				
+			}
+			
+			return vivienda;
+		}
 		
 
 		//----------------------------------------------------------------------------------------------------------------------------------
