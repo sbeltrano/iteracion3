@@ -289,10 +289,6 @@ public class AlohaTransactionManager {
 				throw new Exception("El cliente de la reserva no existe");
 			}
 			
-			
-			
-			
-			
 			daoReserva.setConn(conn);
 			daoReserva.addReserva(reserva);
 			
@@ -345,14 +341,11 @@ public class AlohaTransactionManager {
 			{
 				throw new Exception("El cliente de la reserva no existe");
 			}
-			
-			
-			
+		
 			daoReserva.setConn(conn);
 			daoReserva.addReserva(reserva);
 			
-			
-			
+				
 
 		}
 		catch (SQLException sqlException) {
@@ -1004,7 +997,8 @@ public class AlohaTransactionManager {
 		}
 		return habitacion;
 	}
-	
+
+
 	/**
 	 * Metodo que modela la transaccion que busca el cliente en la base de datos que tiene el ID dado por parametro. <br/>
 	 * @param name -id del bebedor a buscar. id != null
@@ -1096,56 +1090,11 @@ public class AlohaTransactionManager {
 		return operador;
 	}
 	
-	/**
-	 * Metodo que modela la transaccion que busca el apartamento en la base de datos que tiene el ID dado por parametro. <br/>
-	 * @param name -id del operador a buscar. id != null
-	 * @return Bebedor - operador que se obtiene como resultado de la consulta.
-	 * @throws Exception -  apartamento error que se genere durante la transaccion
-	 */
-	public Apartamento getAptoByid(int id) throws Exception {
-		DAOApartamento daoApto = new DAOApartamento();
-		Apartamento apartamento = null;
-		try 
-		{
-			this.conn = darConexion();
-			daoApto.setConn(conn);
-			apartamento = daoApto.findAptoByid(id);
-			if(apartamento == null)
-			{
-				throw new Exception("El operador con el id = " + id + " no se encuentra persistido en la base de datos.");				
-			}
-		} 
-		catch (SQLException sqlException) {
-			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
-			sqlException.printStackTrace();
-			throw sqlException;
-		} 
-		catch (Exception exception) {
-			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
-			exception.printStackTrace();
-			throw exception;
-		} 
-		finally {
-			try {
-				daoApto.cerrarRecursos();
-				if(this.conn!=null){
-					this.conn.close();					
-				}
-			}
-			catch (SQLException exception) {
-				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
-				exception.printStackTrace();
-				throw exception;
-			}
-		}
-		return apartamento;
-	}
 	
 	
 	//-------------------------------------------------------------
 	//METODOS DELETE
 	//--------------------------------------------------------------
-	
 	
 	
 	
@@ -1193,6 +1142,50 @@ public class AlohaTransactionManager {
 	}
 	
 	
+	/**
+	 * Metodo que modela la transaccion que elimina de la base de datos a la vivienda que entra por parametro. <br/>
+	 * Solamente se actualiza si existe el bebedor en la Base de Datos <br/>
+	 * <b> post: </b> se ha eliminado el bebedor que entra por parametro <br/>
+	 * @param Hotel - hotel a eliminar. hotel != null
+	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
+	 */
+	public void deleteVivienda(int id) throws Exception 
+	{
+		DAOVivienda daoVivienda = new DAOVivienda( );
+		try
+		{
+			this.conn = darConexion();
+			daoVivienda.setConn( conn );
+			
+			daoVivienda.deleteVivienda(id);
+			
+			
+			
+		}
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoVivienda.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}	
+	}
 	
 	/**
 	 * Metodo que modela la transaccion que elimina de la base de datos al bebedor que entra por parametro. <br/>
