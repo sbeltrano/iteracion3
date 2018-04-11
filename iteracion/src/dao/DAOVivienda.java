@@ -129,6 +129,25 @@ public class DAOVivienda {
 		return viviendas;
 	}
 
+	
+	public void hacerReserva(int idVivienda)throws SQLException
+	{
+		
+		String sql = String.format("", USUARIO, idVivienda);
+		
+		
+	}
+	
+	
+	
+	public boolean estaOcupada(int idVivienda) throws SQLException, Exception
+	{
+		
+		Vivienda viv = findViviendaById(idVivienda);
+		
+		return viv.isOcupado(); 
+	}
+	
 	public Vivienda findViviendaById(int id) throws SQLException, Exception {
 		Vivienda vivienda = null;
 

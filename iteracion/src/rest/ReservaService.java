@@ -18,8 +18,10 @@ import tm.AlohaTransactionManager;
 import vos.Apartamento;
 import vos.ContratoApto;
 import vos.ContratoHabitacion;
+import vos.ContratoVivienda;
 import vos.Hotel;
 import vos.Reserva;
+import vos.Servicios;
 
 @Path ("reservas")
 public class ReservaService {
@@ -117,6 +119,62 @@ public class ReservaService {
 			}
 	
 	
+
+			/**
+			 * Metodo Post Que hace una reserva a una vivienda . <br/>
+			 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+			 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/{{id}}/hotel <br/>
+			 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
+			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+			 */			
+			@POST
+			@Path("{idcliente: \\d+}/vivienda/{idvivienda: \\d+}")
+			@Consumes({ MediaType.APPLICATION_JSON })
+			@Produces({ MediaType.APPLICATION_JSON })
+			public Response postContratoVivienda(ContratoVivienda reserva,@PathParam("idcliente") int idCliente, @PathParam("idvivienda")int idvivienda) 
+			{
+				
+				try {
+					System.out.println("entra al post disponibilidad " + reserva.getFechaFinal());
+					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+					tm.addReservaVivienda(reserva, idCliente, idvivienda);
+					
+					
+					return Response.status(200).entity(reserva).build();
+				} 
+				catch (Exception e) {
+					return Response.status(500).entity(doErrorMessage(e)).build();
+				}
+			}
+			
+			
+
+			/**
+			 * Metodo Post Que hace una reserva colectiva. <br/>
+			 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+			 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/{{id}}/hotel <br/>
+			 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
+			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+			 */			
+			@POST
+			@Path("{idreservacolectiva: \\d+}/habitacionColectiva/{numeroHabitaciones: \\d+}")
+			@Consumes({ MediaType.APPLICATION_JSON })
+			@Produces({ MediaType.APPLICATION_JSON })
+			public Response postReservaColectiva (Servicios servicios ,@PathParam("numeroReservas") int numeroReservas, @PathParam("numeroHabitacion")int numeroHabitacion) 
+			{
+				
+				try {	
+						
+						
+						
+						
+						return Response.status(200).entity(servicios).build();
+				} 
+				catch (Exception e) {
+					return Response.status(500).entity(doErrorMessage(e)).build();
+				}
+			}
+			
 			
 			/**
 			 * Metodo get que obtiene todas las reservas de un cliente . <br/>

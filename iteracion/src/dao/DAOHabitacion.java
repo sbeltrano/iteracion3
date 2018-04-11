@@ -92,6 +92,14 @@ public class DAOHabitacion {
 		}
 		
 
+		public boolean estaOcupada(int idHabitacion) throws SQLException, Exception
+		{
+			Habitacion hab = findHabitacionById(idHabitacion); 
+			
+			return hab.getOcupada();
+		}
+		
+		
 		/**
 		 * Metodo que obtiene la informacion de la habitacion en la Base de Datos que tiene el identificador dado por parametro<br/>
 		 * <b>Precondicion: </b> la conexion a sido inicializadoa <br/> 
@@ -105,7 +113,7 @@ public class DAOHabitacion {
 		{
 			Habitacion habitacion = null;
 
-			String sql = String.format("SELECT * FROM %1$s.VIVIENDA WHERE VIVIENDAID = %2$d", USUARIO, id); 
+			String sql = String.format("SELECT * FROM %1$s.HABITACION WHERE HABITACIONID = %2$d", USUARIO, id); 
 
 			PreparedStatement prepStmt = conn.prepareStatement(sql);
 			recursos.add(prepStmt);
@@ -118,6 +126,33 @@ public class DAOHabitacion {
 			return habitacion;
 		}
 		
+		
+
+		/**
+		 * Metodo que obtiene la informacion de la habitacion en la Base de Datos que tiene el identificador dado por parametro<br/>
+		 * <b>Precondicion: </b> la conexion a sido inicializadoa <br/> 
+		 * @param id el identificador de la vivienda
+		 * @return la informacion del bebedor que cumple con los criterios de la sentecia SQL
+		 * 			Null si no existe el bebedor conlos criterios establecidos
+		 * @throws SQLException SQLException Genera excepcion si hay error en la conexion o en la consulta SQL
+		 * @throws Exception Si se genera un error dentro del metodo.
+		 */
+		public Habitacion getHabitacionesCondicion(String condicion) throws SQLException, Exception 
+		{
+			Habitacion habitacion = null;
+
+			String sql = String.format("SELECT * FROM %1$s.HABITACION WHERE HABITACIONID = %2$d", USUARIO, condicion); 
+
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			ResultSet rs = prepStmt.executeQuery();
+
+			if(rs.next()) {
+				habitacion = convertResultSetToHabitacion(rs);
+			}
+
+			return habitacion;
+		}
 		
 		
 		public void deleteHabitacion(Habitacion habitacion) throws SQLException
@@ -193,5 +228,6 @@ public class DAOHabitacion {
 			
 			return habitacion;
 		}
+
 		
 }

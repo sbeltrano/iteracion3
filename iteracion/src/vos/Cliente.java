@@ -59,14 +59,14 @@ public class Cliente extends Comunidad{
 	//----------------------------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Metodo constructor de la clase Bebedor
-	 * <b>post: </b> Crea el bebedor con los valores que entran por parametro
+	 * Metodo constructor de la clase cliente
+	 * <b>post: </b> Crea el cliente con los valores que entran por parametro
 	 * @param id - Id del bebedor.
 	 * @param nombre - Nombre del bebedor.
 	 * @param presupuesto - Presupuesto del bebedor.
 	 * @param ciudad - Ciudad del bebedor.
 	 */
-	//TODO Requerimiento 1E: Complete el metodo constructor (parametros y contenido) con los atributos agregados anteriormente
+
 	public Cliente( @JsonProperty(value="id")int id, @JsonProperty(value="nombre") String nombre, @JsonProperty(value="rol")String rol,@JsonProperty(value="carnet")int carnet) {
 		super(id,nombre,rol,carnet);
 		setId(id);

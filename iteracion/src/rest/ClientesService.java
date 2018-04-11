@@ -156,7 +156,6 @@ public class ClientesService {
 	 * @return	<b>Response Status 200</b> - JSONs que contienen a los bebedores que tengan el nombre o el apellido correspondiente<br/>
 	 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 	 */
-	//TODO Requerimiento 2A: Identifique e implemente la anotacion correcta para la realizacion del metodo
 	
 	
 	@GET
