@@ -6,8 +6,8 @@
  * 
  * Actividad: Tutorial Parranderos: Arquitectura
  * Autores:
- * 			Santiago Cortes Fernandez	-	s.cortes@uniandes.edu.co
- * 			Juan David Vega Guzman		-	jd.vega11@uniandes.edu.co
+ * 			Juan Pablo Campos	-	
+ * 			Santiago Beltran	-	
  * -------------------------------------------------------------------
  */
 package tm;
@@ -15,7 +15,6 @@ package tm;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.Permissions;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -24,10 +23,12 @@ import java.util.Properties;
 
 import dao.DAOApartamento;
 import dao.DAOCliente;
+import dao.DAOControl;
 import dao.DAOHabitacion;
 import dao.DAOHotel;
 import dao.DAOOperador;
 import dao.DAOReserva;
+import dao.DAOServicios;
 import dao.DAOVivienda;
 import vos.Apartamento;
 import vos.Cliente;
@@ -275,10 +276,11 @@ public class AlohaTransactionManager {
 	 * @param hotel - la reserva. reserva != null
 	 * @throws Exception - Cualquier error que se genere agregando el hotel
 	 */
-	public void addReserva(Reserva reserva, int idCliente, int idApartamento) throws Exception 
+	public void addReservaApartamento(Reserva reserva, int idCliente, int idApartamento) throws Exception 
 	{
 		
 		DAOReserva daoReserva = new DAOReserva( );
+		
 		try
 		{
 			this.conn = darConexion(); 
@@ -290,9 +292,9 @@ public class AlohaTransactionManager {
 			}
 			
 			daoReserva.setConn(conn);
-			daoReserva.addReserva(reserva);
+			daoReserva.addReserva(reserva, idCliente);
 			
-			
+		
 			
 
 		}
@@ -343,7 +345,7 @@ public class AlohaTransactionManager {
 			}
 		
 			daoReserva.setConn(conn);
-			daoReserva.addReserva(reserva);
+			daoReserva.addReserva(reserva, idCliente);
 			
 				
 
@@ -383,11 +385,30 @@ public class AlohaTransactionManager {
 	{
 		
 		DAOHotel daoHotel = new DAOHotel( );
+		DAOHabitacion daoHabitacion = new DAOHabitacion();
+		DAOControl daoControl = new DAOControl();
+		
+		List<Habitacion> habitaciones = hotel.getHabitaciones(); 
+		
+	
+		
+		
 		try
 		{
+		
 			this.conn = darConexion(); 
 			daoHotel.setConn(conn);
+			daoHabitacion.setConn(conn);
+			daoControl.setConn(conn);
 			daoHotel.addHotel(hotel);
+			
+			for (Habitacion habitacion : habitaciones) {
+				
+				daoHabitacion.addHabitacionHotel(habitacion, hotel.getId());
+			}
+			
+			
+			
 
 		}
 		catch (SQLException sqlException) {
@@ -508,10 +529,13 @@ public class AlohaTransactionManager {
 	{
 		
 		DAOHabitacion daoHabitacion = new DAOHabitacion( );
+		DAOServicios daoServicios = new DAOServicios();
+		
 		try
 		{
 			this.conn = darConexion(); 
 			daoHabitacion.setConn(conn);
+			daoServicios.setConn(conn);
 			
 			if(getOperadorById(idPersona) == null)
 			{
@@ -519,6 +543,7 @@ public class AlohaTransactionManager {
 			}
 			
 			daoHabitacion.addHabitacionPersona(habitacion, idPersona );
+			daoServicios.addServicios(habitacion.getServicios(), habitacion.getId());
 
 		}
 		catch (SQLException sqlException) {
@@ -534,6 +559,7 @@ public class AlohaTransactionManager {
 		finally {
 			try {
 				daoHabitacion.cerrarRecursos();
+				daoServicios.cerrarRecursos();
 				if(this.conn!=null){
 					this.conn.close();					
 				}
@@ -954,7 +980,7 @@ public class AlohaTransactionManager {
 	
 	/**
 	 * Metodo que modela la transaccion que busca la Habitacion en la base de datos que tiene el ID dado por parametro. <br/>
-	 * @param id -id de la vivienda a buscar. id != null
+	 * @param id -id de la habitación a buscar. id != null
 	 * @return Habitacion - Habitacion que se obtiene como resultado de la consulta.
 	 * @throws Exception -  cualquier error que se genere durante la transaccion
 	 */
@@ -1322,6 +1348,9 @@ public class AlohaTransactionManager {
 	//---------------------------------------------------------//---------------------------------------------------------
 	//								METODOS DE MODIFICACION MASIVA
 	//---------------------------------------------------------//---------------------------------------------------------
+	
+	
+	
 	
 	
 

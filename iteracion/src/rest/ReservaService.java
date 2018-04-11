@@ -75,7 +75,7 @@ public class ReservaService {
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
 					
-					tm.addReserva(reserva, idcliente, idapartamento);
+					tm.addReservaApartamento(reserva, idcliente, idapartamento);
 					
 					
 					return Response.status(200).entity(reserva).build();

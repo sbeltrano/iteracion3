@@ -79,6 +79,43 @@ public class DAOServicios {
 			this.conn = connection;
 		}
 		
+		
+		public void addServicios(Servicios servicios, int habitacionId) throws SQLException, Exception
+		{
+			String sql = String.format("insert into servicios (agua, bañera, cocineta, parqueadero, piscina, recepcion24h, restaurante, sala, tv, wifi, yacuzzi, habitacionid)" + 
+					"values (%2$s,%3$s,%4$s,%5$s,%6$s,%7$s,%8$s,%9$s,%10$s,%11$s,%12$s, %13$s)", 
+					USUARIO,
+					servicios.isAgua()? 1 : 0,
+					servicios.isBañera()? 1 : 0,
+					servicios.isCocineta() ? 1 : 0,
+					servicios.isParquedero()? 1 : 0,
+					servicios.isPiscina()? 1 : 0,
+					servicios.isRecepcion24h()? 1 : 0,
+					servicios.isRestaurante()? 1 : 0,
+					servicios.isSala()? 1 : 0,
+					servicios.isTv()? 1 : 0,
+					servicios.isWifi()? 1 : 0,
+					servicios.isYacuzzi()? 1 : 0,
+					habitacionId
+					);
+			
+			
+			
+			System.out.println(sql);
+
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			prepStmt.executeQuery();
+			
+			
+			
+		}
+		
+		
+		
+		
+		
+		
 		/**
 		 * Metodo que cierra todos los recursos que se encuentran en el arreglo de recursos<br/>
 		 * <b>Postcondicion: </b> Todos los recurso del arreglo de recursos han sido cerrados.

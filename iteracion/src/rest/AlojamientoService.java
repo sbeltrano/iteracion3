@@ -23,6 +23,7 @@ import vos.Habitacion;
 import vos.Hostal;
 import vos.Hotel;
 import vos.PersonaOperador;
+import vos.Servicios;
 import vos.Vivienda;
 
 @Path("alojamientos")
@@ -60,33 +61,6 @@ public class AlojamientoService {
 	
 	
 	
-		/**
-		 * Metodo Post Que registra un hotel. <br/>
-		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
-		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/hotel <br/>
-		 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
-		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
-		 */			
-		@POST
-		@Path("/hotel")
-		@Consumes({ MediaType.APPLICATION_JSON })
-		@Produces({ MediaType.APPLICATION_JSON })
-		public Response postHotel(Hotel hotel) {
-			
-			try {
-				
-				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
-				
-				
-				tm.addHotel(hotel);
-				
-				
-				return Response.status(200).entity(hotel).build();
-			} 
-			catch (Exception e) {
-				return Response.status(500).entity(doErrorMessage(e)).build();
-			}
-		}
 		
 		/**
 		 * Metodo Post Que registra un cliente. <br/>
@@ -143,15 +117,15 @@ public class AlojamientoService {
 		/**
 		 * Metodo Post Que registra una hostal. <br/>
 		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
-		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/{{idOperador}}/hostal <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/hotel <br/>
 		 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
 		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 		 */	
 		@POST
-		@Path("{id: \\d+}/hostal")
+		@Path("/hostal")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
-		public Response postHotel(Hostal hostal) {
+		public Response postHostal(Hostal hostal) {
 			
 			try {
 				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
@@ -166,6 +140,31 @@ public class AlojamientoService {
 			}
 		}
 		
+		/**
+		 * Metodo Post Que registra una hotel. <br/>
+		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/alojamientos/hostal <br/>
+		 * @return	<b>Response Status 200</b> - JSON que contiene al cliente  <br/>
+		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+		 */	
+		@POST
+		@Path("/hotel")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON })
+		public Response postHotel(Hotel hotel) {
+			
+			try {
+				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+				
+				
+				tm.addHotel(hotel);
+				
+				return Response.status(200).entity(hotel).build();
+			} 
+			catch (Exception e) {
+				return Response.status(500).entity(doErrorMessage(e)).build();
+			}
+		}
 		
 		@POST
 		@Path("{id: \\d+}/habitacion")
@@ -175,6 +174,9 @@ public class AlojamientoService {
 			try {
 				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 				tm.addHabitacionPersona(habitacion, id);
+				Servicios servicio = habitacion.getServicios();
+				
+				System.out.println(servicio.isBañera());
 				
 				return Response.status(200).entity(habitacion).build();
 			} 

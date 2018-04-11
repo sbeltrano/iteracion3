@@ -77,12 +77,11 @@ public class DAOHabitacion {
 		
 		public void addHabitacionPersona(Habitacion habitacion, int idPersona) throws SQLException, Exception {
 
-			String sql = String.format("INSERT INTO %1$s.HABITACION (COMPARTIDA, DESCRIPCION, OCUPADA, HABITACIONID, COMUNIDADID) VALUES (%2$s,'%3$s',%4$s,%5$s, %6$s )", 
+			String sql = String.format("INSERT INTO %1$s.HABITACION (COMPARTIDA, DESCRIPCION, OCUPADA, COMUNIDADID) VALUES (%2$s,'%3$s',%4$s,%5$s)", 
 										USUARIO, 
 										habitacion.isCompartida() ? 1 : 0, 
 										habitacion.getDescripcion(), 
 										habitacion.getOcupada()? 1 : 0, 
-										habitacion.getId(), 
 										idPersona);
 			
 			System.out.println(sql);

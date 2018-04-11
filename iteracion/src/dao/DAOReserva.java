@@ -62,7 +62,7 @@ public class DAOReserva {
 	 * @throws SQLException SQLException Genera excepcion si hay error en la conexion o en la consulta SQL
 	 * @throws Exception Si se genera un error dentro del metodo.
 	 */
-	public void addReserva(Reserva reserva) throws SQLException, Exception {
+	public void addReserva(Reserva reserva, int comunidadId) throws SQLException, Exception {
 
 		if(reserva instanceof ContratoVivienda)
 		{
@@ -70,8 +70,8 @@ public class DAOReserva {
 			ContratoVivienda  contratoVivienda = (ContratoVivienda) reserva;
 
 
-			String sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, MENAJE, NUMEROHABITACIONES, TIPOR)"
-					+ " VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s,%7$s, '%8$s' )", 
+			String sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, MENAJE, NUMEROHABITACIONES, TIPOR, COMUNIDADID)"
+					+ " VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s,%7$s, '%8$s', %9$s )", 
 					USUARIO, 
 					contratoVivienda.getFechaInicial(),
 					contratoVivienda.getFechaFinal(),
@@ -79,7 +79,8 @@ public class DAOReserva {
 					contratoVivienda.getId(),
 					contratoVivienda.isMenaje() ? 1: 0,
 							contratoVivienda.getNumeroHabitaciones(), 
-							"CONTRATOVIVIENDA");
+							"CONTRATOVIVIENDA", 
+							comunidadId);
 
 
 			System.out.println(sql);
@@ -94,7 +95,7 @@ public class DAOReserva {
 			ContratoApto contratoApto = (ContratoApto) reserva;
 
 			String sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID,PRECIOSERVICIOS, INCLUYEADMIN, INCLUYESERVPUBLICOS , TIPOR, COMUNIDADID)"
-					+ " VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, %7$s, %8$s, '%9$s',  )", 
+					+ " VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, %7$s, %8$s, '%9$s', %10$s  )", 
 					USUARIO, 
 					contratoApto.getFechaInicial(),
 					contratoApto.getFechaFinal(),
@@ -103,7 +104,8 @@ public class DAOReserva {
 					contratoApto.getPrecioServicio() ? 1: 0,
 							contratoApto.isIncluyeAdmin() ? 1 : 0,
 									contratoApto.isIncluyeServPublicos()? 1 : 0,
-											"CONTRATOAPARTAMENTO");
+											"CONTRATOAPARTAMENTO", 
+											comunidadId);
 
 
 			System.out.println(sql);
@@ -118,7 +120,7 @@ public class DAOReserva {
 			ContratoHabitacion contratoHab = (ContratoHabitacion) reserva; 
 
 			String sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, ACCESOCOCINA, BAÑOPRIVADO, COMUDAS, HABITACIONINDIVIDUAL, DURACION, COMUNIDADID) "
-					+ "VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, '%11$s')", 
+					+ "VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, %7$s, %8$s, %9$s, %10$s, '%11$s', %12$s)", 
 					USUARIO, 
 					contratoHab.getFechaInicial(),
 					contratoHab.getFechaFinal(),
@@ -129,7 +131,8 @@ public class DAOReserva {
 									contratoHab.isComidas() ? 1 : 0, 
 											contratoHab.isHabitacionIndividual()? 1:0,
 													contratoHab.getDuracion(), 
-													"CONTRATOHABITACION");
+													"CONTRATOHABITACION", 
+													comunidadId);
 
 
 			System.out.println(sql);
@@ -140,12 +143,13 @@ public class DAOReserva {
 		}else 
 		{
 
-			String sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID) VALUES ('%2$s', '%3$s', %4$s, %5$s)", 
+			String sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, COMUNIDADID) VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s)", 
 					USUARIO, 
 					reserva.getFechaInicial(),
 					reserva.getFechaFinal(),
 					reserva.getPrecio(),
-					reserva.getId());
+					reserva.getId(), 
+					comunidadId);
 
 			System.out.println(sql);
 
