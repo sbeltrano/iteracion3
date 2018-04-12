@@ -166,7 +166,9 @@ public class ReservaService {
 				try {	
 						
 						
-						
+				
+					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+					tm.agregarReservaColectiva(servicios, numeroReservas);
 						
 						return Response.status(200).entity(servicios).build();
 				} 

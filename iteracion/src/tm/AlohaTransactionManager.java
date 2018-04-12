@@ -23,7 +23,6 @@ import java.util.Properties;
 
 import dao.DAOApartamento;
 import dao.DAOCliente;
-import dao.DAOControl;
 import dao.DAOHabitacion;
 import dao.DAOHotel;
 import dao.DAOOperador;
@@ -282,13 +281,11 @@ public class AlohaTransactionManager {
 
 		DAOReserva daoReserva = new DAOReserva( );
 		DAOApartamento daoApartamento = new DAOApartamento(); 
-		DAOControl daoControl = new DAOControl(); 
-
+		
 		try
 		{
 			this.conn = darConexion(); 
 			daoReserva.setConn(conn);
-			daoControl.setConn(conn);
 			daoApartamento.setConn(conn);
 			
 			daoReserva.addReserva(reserva, idCliente);
@@ -315,7 +312,7 @@ public class AlohaTransactionManager {
 			try {
 				daoReserva.cerrarRecursos();
 				daoApartamento.cerrarRecursos();
-				daoControl.cerrarRecursos(); 
+				
 				if(this.conn!=null){
 					this.conn.close();					
 				}
@@ -339,7 +336,6 @@ public class AlohaTransactionManager {
 	{
 
 		DAOReserva daoReserva = new DAOReserva( );
-		DAOControl daoControl = new DAOControl(); 
 		DAOVivienda daoVivienda = new DAOVivienda(); 
 
 		try
@@ -347,7 +343,6 @@ public class AlohaTransactionManager {
 			this.conn = darConexion(); 
 
 			daoReserva.setConn(conn);
-			daoControl.setConn(conn);
 			daoVivienda.setConn(conn);
 
 			Cliente cliente = getClienteById(idCliente); 
@@ -377,7 +372,6 @@ public class AlohaTransactionManager {
 		finally {
 			try {
 				daoReserva.cerrarRecursos();
-				daoControl.cerrarRecursos(); 
 				daoVivienda.cerrarRecursos();
 				if(this.conn!=null){
 					this.conn.close();					
@@ -401,7 +395,6 @@ public class AlohaTransactionManager {
 	{
 
 		DAOReserva daoReserva = new DAOReserva( );
-		DAOControl daoControl = new DAOControl(); 
 		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
 
 		try
@@ -413,7 +406,6 @@ public class AlohaTransactionManager {
 
 			daoReserva.setConn(conn);
 			daoHabitacion.setConn(conn);
-			daoControl.setConn(conn);
 			if(daoHabitacion.estaOcupada(idHabitacion))
 			{
 				throw new Exception("La habitación está ocupada");
@@ -437,7 +429,6 @@ public class AlohaTransactionManager {
 		finally {
 			try {
 				daoReserva.cerrarRecursos();
-				daoControl.cerrarRecursos();
 				daoHabitacion.cerrarRecursos(); 
 				if(this.conn!=null){
 					this.conn.close();					
@@ -462,7 +453,7 @@ public class AlohaTransactionManager {
 
 		DAOHotel daoHotel = new DAOHotel( );
 		DAOHabitacion daoHabitacion = new DAOHabitacion();
-		DAOControl daoControl = new DAOControl();
+		
 
 		List<Habitacion> habitaciones = hotel.getHabitaciones(); 
 
@@ -475,7 +466,6 @@ public class AlohaTransactionManager {
 			this.conn = darConexion(); 
 			daoHotel.setConn(conn);
 			daoHabitacion.setConn(conn);
-			daoControl.setConn(conn);
 			daoHotel.addHotel(hotel);
 
 			for (Habitacion habitacion : habitaciones) {
@@ -1438,7 +1428,7 @@ public class AlohaTransactionManager {
 	{
 		DAOReserva daoReserva = new DAOReserva( );           
 		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
-		DAOControl daoControl = new DAOControl();
+	
 		
 		
 		
