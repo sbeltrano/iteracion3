@@ -21,6 +21,7 @@ import vos.ContratoHabitacion;
 import vos.ContratoVivienda;
 import vos.Hotel;
 import vos.Reserva;
+import vos.ReservaColectiva;
 import vos.Servicios;
 
 @Path ("reservas")
@@ -157,10 +158,10 @@ public class ReservaService {
 			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 			 */			
 			@POST
-			@Path("{idreservacolectiva: \\d+}/habitacionColectiva/{numeroHabitaciones: \\d+}")
+			@Path("/colectiva")
 			@Consumes({ MediaType.APPLICATION_JSON })
 			@Produces({ MediaType.APPLICATION_JSON })
-			public Response postReservaColectiva (Servicios servicios ,@PathParam("numeroReservas") int numeroReservas, @PathParam("numeroHabitacion")int numeroHabitacion) 
+			public Response postReservaColectiva (ReservaColectiva reservaColectiva) 
 			{
 				
 				try {	
@@ -168,9 +169,9 @@ public class ReservaService {
 						
 				
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
-					tm.agregarReservaColectiva(servicios, numeroReservas);
+					tm.agregarReservaColectiva(reservaColectiva);
 						
-						return Response.status(200).entity(servicios).build();
+						return Response.status(200).entity(reservaColectiva).build();
 				} 
 				catch (Exception e) {
 					return Response.status(500).entity(doErrorMessage(e)).build();

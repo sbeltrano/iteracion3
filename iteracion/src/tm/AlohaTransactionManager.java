@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -36,6 +37,7 @@ import vos.Habitacion;
 import vos.Hotel;
 import vos.PersonaOperador;
 import vos.Reserva;
+import vos.ReservaColectiva;
 import vos.Servicios;
 import vos.Vivienda;
 
@@ -180,6 +182,7 @@ public class AlohaTransactionManager {
 		try
 		{
 			this.conn = darConexion(); 
+			conn.setAutoCommit(true);
 			daoCliente.setConn(conn);
 
 			if(!cliente.getRol().equals(Comunidad.FAMILIAR)	&&!cliente.getRol().equals(Comunidad.ESTUDIANTE )&&!cliente.getRol().equals(Comunidad.PROFESOR))
@@ -230,6 +233,7 @@ public class AlohaTransactionManager {
 		try
 		{
 			this.conn = darConexion(); 
+			conn.setAutoCommit(true);
 			daoOperador.setConn(conn);
 
 			if(!operador.getRol().equals(Comunidad.FAMILIAR)	&&!operador.getRol().equals(Comunidad.ESTUDIANTE )&&!operador.getRol().equals(Comunidad.PROFESOR)
@@ -285,27 +289,38 @@ public class AlohaTransactionManager {
 		try
 		{
 			this.conn = darConexion(); 
+			conn.setAutoCommit(false);
 			daoReserva.setConn(conn);
 			daoApartamento.setConn(conn);
 			
 			daoReserva.addReserva(reserva, idCliente);
+
+			if(daoApartamento.estaOcupado(idApartamento))
+			{
+				throw new Exception("El apartamento está ocupado");
+			}
+			
+			
 			
 			Cliente cliente = getClienteById(idCliente); 
-		
 			
-
-
+			
+			conn.commit();
+				
 
 
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
 			sqlException.printStackTrace();
+			conn.rollback();
 			throw sqlException;
+			
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
 			exception.printStackTrace();
+			conn.rollback();
 			throw exception;
 		} 
 		finally {
@@ -344,7 +359,8 @@ public class AlohaTransactionManager {
 
 			daoReserva.setConn(conn);
 			daoVivienda.setConn(conn);
-
+			conn.setAutoCommit(false);
+			
 			Cliente cliente = getClienteById(idCliente); 
 		
 
@@ -355,13 +371,15 @@ public class AlohaTransactionManager {
 
 
 			daoReserva.addReserva(reserva, idCliente);
-
+			
+			
 
 
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
 			sqlException.printStackTrace();
+			conn.rollback();
 			throw sqlException;
 		} 
 		catch (Exception exception) {
@@ -410,20 +428,25 @@ public class AlohaTransactionManager {
 			{
 				throw new Exception("La habitación está ocupada");
 			}
+			
 			daoReserva.addReserva(reserva, idCliente);
-
-
-
-
+			daoHabitacion.reservar(idHabitacion);
+			
+			System.out.println("Reserva completada para la habitación con id:  " + idHabitacion);
+			
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
-			sqlException.printStackTrace();
+			sqlException.printStackTrace(); 
+			System.out.println("Reserva fallida para la habitación con id:  " + idHabitacion);
+			conn.rollback();
 			throw sqlException;
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
 			exception.printStackTrace();
+			System.out.println("Reserva fallida para la habitación con id:  " + idHabitacion);
+			conn.rollback(); 
 			throw exception;
 		} 
 		finally {
@@ -464,6 +487,7 @@ public class AlohaTransactionManager {
 		{
 
 			this.conn = darConexion(); 
+			conn.setAutoCommit(false);
 			daoHotel.setConn(conn);
 			daoHabitacion.setConn(conn);
 			daoHotel.addHotel(hotel);
@@ -475,16 +499,18 @@ public class AlohaTransactionManager {
 
 
 
-
+			conn.commit();
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
 			sqlException.printStackTrace();
+			conn.rollback();
 			throw sqlException;
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
 			exception.printStackTrace();
+			conn.rollback();
 			throw exception;
 		} 
 		finally {
@@ -1424,31 +1450,66 @@ public class AlohaTransactionManager {
 	 * @param Cliente - bebedor a eliminar. bebedor != null
 	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
 	 */
-	public void agregarReservaColectiva(Servicios servicio, int numeroReservas) throws Exception 
+	public void agregarReservaColectiva(ReservaColectiva reservaColectiva) throws Exception 
 	{
 		DAOReserva daoReserva = new DAOReserva( );           
 		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
 	
-		
-		
-		
 		
 		try
 		{
 			this.conn = darConexion();
 			daoReserva.setConn(conn);
 			daoHabitacion.setConn(conn);
+			conn.setAutoCommit(false);
 			
-
+			String condicion = "DESCRIPCION = " + reservaColectiva.getDescripcion();
+			Servicios serviciosDeseados = reservaColectiva.getServicios(); 
+			
+			List<Habitacion> habitacionesDescripcion = daoHabitacion.getHabitacionesCondicion(condicion); 
+			ArrayList<Habitacion> habitacionesValidas = new ArrayList<>();
+			
+			for (int i = 0; i < habitacionesDescripcion.size(); i++) 
+			{
+				
+				Habitacion habActual = habitacionesDescripcion.get(i); 
+				Servicios sevicioActual = habitacionesDescripcion.get(i).getServicios();
+				
+				if(serviciosDeseados.cumpleCondiciones(sevicioActual) && !daoHabitacion.estaOcupada(habActual.getId())	)
+				{
+					habitacionesValidas.add(habActual);
+				}
+				
+			}
+			
+			if(habitacionesValidas.size() < reservaColectiva.getNumeroReservas())
+			{	conn.rollback(); 
+				throw new Exception("No hay suficientes habitaciones que cumplan los requisitos");
+			}
+			
+			for(int i = 0; i < reservaColectiva.getNumeroReservas(); i++)
+			{
+				
+				System.out.println("Comienzo de la transacción de reserva individual de la habitación " + habitacionesValidas.get(i).getId());
+				addReservaHabitacion(reservaColectiva.getReserva(), 0, habitacionesValidas.get(i).getId());
+			
+			}
+			
+			System.out.println("Transacción de reserva masiva exitosa");
+			
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
 			sqlException.printStackTrace();
+			System.out.println("Transacción de reserva masiva fallida");
+			conn.rollback();
 			throw sqlException;
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
 			exception.printStackTrace();
+			System.out.println("Transacción de reserva masiva fallida");
+			conn.rollback(); 
 			throw exception;
 		} 
 		finally {

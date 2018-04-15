@@ -122,6 +122,28 @@ public class DAOApartamento {
 			
 		}
 		
+		
+		public boolean estaOcupado(int idApto) throws SQLException
+		{
+			
+			Apartamento apto = findAptoByid(idApto); 
+			return apto.isOcupado();
+		}
+		
+		
+		public void ocupar(int idApto) throws SQLException
+		{
+			String sql = String.format("INSERT INTO %1$s.APARTAMENTO (OCUPADO) VALUES (%2$s) WHERE APARTAMENTOID = %3$s ",
+						USUARIO, 
+						1, 
+						idApto); 
+			
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			prepStmt.executeQuery();
+			
+		}
+		
 		public void deleteApto(Apartamento apto) throws SQLException
 		{	
 			String sql = String.format("DElETE FROM %1$s.APARTAMENTO WHERE APARTAMENTOID = %2$s ", 

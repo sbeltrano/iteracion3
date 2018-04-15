@@ -181,6 +181,65 @@ public class Servicios {
 	
 	
 	
+	public boolean cumpleCondiciones(Servicios servicio)
+	{
+			
+		 if(agua)
+		 {
+			 if(!servicio.agua)return false;
+		 }
+		 
+		 if(bañera)
+		 {
+			 if(!servicio.bañera)return false;
+		 }
+		 
+		 if(cocineta)
+		 {
+			 if(!servicio.cocineta) return false;
+		 }
+		 
+		 if(parquedero)
+		 {
+			 if(!servicio.parquedero) return false;
+		 }
+		 
+		 if(piscina)
+		 {
+			 if(!servicio.piscina)return false;
+		 }
+		 if(recepcion24h)
+		 {
+			 if(!servicio.recepcion24h)return false;
+		 }
+		 if(restaurante)
+		 {
+			 if(!servicio.restaurante)return false;
+		 }
+		 if(sala)
+		 {
+			 if(!servicio.sala)return false;
+			 
+		 }
+		 if(tv)
+		 {
+			 if(!servicio.tv)return false;
+		 }
+		 
+		 if (wifi) 
+		 {
+			if(!servicio.wifi)return false;
+		 }
+		 
+		 if(yacuzzi)
+		 {
+			 if(!servicio.yacuzzi)return false;
+		 }
+		 
+		 
+		 return true;
+		 
+	}
 	
 	
 	
