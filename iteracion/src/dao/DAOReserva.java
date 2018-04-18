@@ -62,15 +62,19 @@ public class DAOReserva {
 	 * @throws SQLException SQLException Genera excepcion si hay error en la conexion o en la consulta SQL
 	 * @throws Exception Si se genera un error dentro del metodo.
 	 */
-	public void addReserva(Reserva reserva, int comunidadId) throws SQLException, Exception {
+	public void addReserva(Reserva reserva, int comunidadId, boolean colectiva) throws SQLException, Exception {
 
+		
 		if(reserva instanceof ContratoVivienda)
 		{
-
+			String sql = null; 
 			ContratoVivienda  contratoVivienda = (ContratoVivienda) reserva;
+			if(!colectiva)
+			{
+			
 
 
-			String sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, MENAJE, NUMEROHABITACIONES, TIPOR, COMUNIDADID)"
+			sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, MENAJE, NUMEROHABITACIONES, TIPOR, COMUNIDADID)"
 					+ " VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s,%7$s, '%8$s', %9$s )", 
 					USUARIO, 
 					contratoVivienda.getFechaInicial(),
@@ -81,7 +85,23 @@ public class DAOReserva {
 							contratoVivienda.getNumeroHabitaciones(), 
 							"CONTRATOVIVIENDA", 
 							comunidadId);
+			}else
+			{
+				
 
+				sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, MENAJE, NUMEROHABITACIONES, TIPOR, COMUNIDADID)"
+						+ " VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s,%7$s, '%8$s', %9$s )", 
+						USUARIO, 
+						contratoVivienda.getFechaInicial(),
+						contratoVivienda.getFechaFinal(),
+						contratoVivienda.getPrecio(),
+						contratoVivienda.getId(),
+						contratoVivienda.isMenaje() ? 1: 0,
+								contratoVivienda.getNumeroHabitaciones(), 
+								"CONTRATOVIVIENDA", 
+								comunidadId);
+				
+			}
 
 			System.out.println(sql);
 
@@ -195,10 +215,21 @@ public class DAOReserva {
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		recursos.add(prepStmt);
 		prepStmt.executeQuery();
-
-
+		
 	}
+	
+	
+	public void cancelarReservaColectiva(int reservaId) throws SQLException
+	{
 
+		String sql = String.format("DELETE FROM %1$s.RESERVAS WHERE COLECTIVAID = %2$s", USUARIO, reservaId); 
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		prepStmt.executeQuery();
+		
+	}
+	
+	
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	// METODOS AUXILIARES

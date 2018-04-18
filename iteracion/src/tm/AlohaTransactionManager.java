@@ -293,7 +293,7 @@ public class AlohaTransactionManager {
 			daoReserva.setConn(conn);
 			daoApartamento.setConn(conn);
 			
-			daoReserva.addReserva(reserva, idCliente);
+			daoReserva.addReserva(reserva, idCliente, false);
 
 			if(daoApartamento.estaOcupado(idApartamento))
 			{
@@ -370,7 +370,7 @@ public class AlohaTransactionManager {
 			}
 
 
-			daoReserva.addReserva(reserva, idCliente);
+			daoReserva.addReserva(reserva, idCliente, false);
 			
 			
 
@@ -429,7 +429,7 @@ public class AlohaTransactionManager {
 				throw new Exception("La habitación está ocupada");
 			}
 			
-			daoReserva.addReserva(reserva, idCliente);
+			daoReserva.addReserva(reserva, idCliente, false);
 			daoHabitacion.reservar(idHabitacion);
 			
 			System.out.println("Reserva completada para la habitación con id:  " + idHabitacion);
@@ -1404,21 +1404,36 @@ public class AlohaTransactionManager {
 	public void deleteReserva(int idReserva) throws Exception 
 	{
 		DAOReserva daoReserva = new DAOReserva( );
+		
+		
+		
 		try
 		{
 			this.conn = darConexion();
 			daoReserva.setConn( conn );
 			daoReserva.cancelarReserva(idReserva);
-
+			
+			
+			conn.setAutoCommit(false);
+			
+			
+			
+			
+			
+			
+			
+			
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
 			sqlException.printStackTrace();
+			conn.rollback(); 
 			throw sqlException;
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
 			exception.printStackTrace();
+			conn.rollback();
 			throw exception;
 		} 
 		finally {
@@ -1482,10 +1497,14 @@ public class AlohaTransactionManager {
 				
 			}
 			
+			
+			
 			if(habitacionesValidas.size() < reservaColectiva.getNumeroReservas())
 			{	conn.rollback(); 
 				throw new Exception("No hay suficientes habitaciones que cumplan los requisitos");
 			}
+			
+			
 			
 			for(int i = 0; i < reservaColectiva.getNumeroReservas(); i++)
 			{
@@ -1530,13 +1549,13 @@ public class AlohaTransactionManager {
 	
 
 	/**
-	 * Metodo que modela la transaccion que elimina de la base de datos las reservascolectivas con el id dado <br/>
+	 * Metodo que modela la transaccion que elimina de la base de datos las reservas colectivas con el id dado <br/>
 	 * Solamente se actualiza si existe el bebedor en la Base de Datos <br/>
 	 * <b> post: </b> se ha eliminado el bebedor que entra por parametro <br/>
 	 * @param Cliente - bebedor a eliminar. bebedor != null
 	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
 	 */
-	public void deleteReservaColectiva(Servicios servicio, int numeroReservas) throws Exception 
+	public void deleteReservaColectiva(int reservaColectiva) throws Exception 
 	{
 		DAOReserva daoReserva = new DAOReserva( );           
 		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
