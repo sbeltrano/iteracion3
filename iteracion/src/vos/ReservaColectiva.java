@@ -35,7 +35,8 @@ public class ReservaColectiva {
  	},
  	"descripcion": "Habitación Sencilla", 
  	"id": 1,
- 	"numeroReservas":10
+ 	"numeroReservas":10,
+ 	"clienteId": 4
  	}
 	
  * @author jp.campos
@@ -45,6 +46,11 @@ public class ReservaColectiva {
 	
 	@JsonProperty(value="descripcion")
 	private String descripcion;
+	
+	
+
+	@JsonProperty(value="clienteId")
+	private int clienteId;
 	
 	
 	@JsonProperty(value="numeroReservas")
@@ -62,13 +68,28 @@ public class ReservaColectiva {
 	private Reserva reserva;
 	
 	
-	public ReservaColectiva(@JsonProperty(value="reserva") Reserva reserva,@JsonProperty(value="descripcion")String descripcion, @JsonProperty(value="numeroReservas")int numeroReservas, @JsonProperty(value="servicios")Servicios servicios,@JsonProperty(value="id") int id) {
+	public ReservaColectiva(@JsonProperty(value="clienteId")int clienteId, @JsonProperty(value="reserva") Reserva reserva,@JsonProperty(value="descripcion")String descripcion, @JsonProperty(value="numeroReservas")int numeroReservas, @JsonProperty(value="servicios")Servicios servicios,@JsonProperty(value="id") int id) {
 		super();
 		this.reserva = reserva;
 		this.descripcion = descripcion;
 		this.numeroReservas = numeroReservas;
 		this.servicios = servicios;
 		this.id = id;
+		this.clienteId= clienteId; 
+	}
+
+
+	
+	
+	
+	
+	
+	public int getClienteId() {
+		return clienteId;
+	}
+
+	public void setClienteId(int clienteId) {
+		this.clienteId = clienteId;
 	}
 
 

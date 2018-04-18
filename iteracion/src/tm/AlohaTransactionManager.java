@@ -1401,7 +1401,7 @@ public class AlohaTransactionManager {
 	 * @param Cliente - bebedor a eliminar. bebedor != null
 	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
 	 */
-	public void deleteReserva(int idReserva) throws Exception 
+	public void deleteReserva(int idReserva, boolean reservaColectiva) throws Exception 
 	{
 		DAOReserva daoReserva = new DAOReserva( );
 		
@@ -1409,19 +1409,15 @@ public class AlohaTransactionManager {
 		
 		try
 		{
+			conn.setAutoCommit(true);
 			this.conn = darConexion();
 			daoReserva.setConn( conn );
+			if(reservaColectiva)
+			{
+			daoReserva.cancelarReservaColectiva(idReserva);
+			}else{
 			daoReserva.cancelarReserva(idReserva);
-			
-			
-			conn.setAutoCommit(false);
-			
-			
-			
-			
-			
-			
-			
+			}
 			
 		}
 		catch (SQLException sqlException) {
@@ -1478,6 +1474,10 @@ public class AlohaTransactionManager {
 			daoHabitacion.setConn(conn);
 			conn.setAutoCommit(false);
 			
+			//Verificar si el cliente existe
+			getClienteById(reservaColectiva.getClienteId());
+			
+			//Buscar las habitaciones con descripcion
 			String condicion = "DESCRIPCION = " + reservaColectiva.getDescripcion();
 			Servicios serviciosDeseados = reservaColectiva.getServicios(); 
 			
@@ -1496,25 +1496,26 @@ public class AlohaTransactionManager {
 				}
 				
 			}
-			
-			
-			
+		
 			if(habitacionesValidas.size() < reservaColectiva.getNumeroReservas())
 			{	conn.rollback(); 
 				throw new Exception("No hay suficientes habitaciones que cumplan los requisitos");
 			}
 			
 			
+			int id = reservaColectiva.getReserva().getId();
 			
 			for(int i = 0; i < reservaColectiva.getNumeroReservas(); i++)
-			{
+			{	
 				
 				System.out.println("Comienzo de la transacción de reserva individual de la habitación " + habitacionesValidas.get(i).getId());
-				addReservaHabitacion(reservaColectiva.getReserva(), 0, habitacionesValidas.get(i).getId());
-			
+				reservaColectiva.setId(id);
+				addReservaHabitacion(reservaColectiva.getReserva(), reservaColectiva.getClienteId(), habitacionesValidas.get(i).getId());
+				id++;
 			}
 			
 			System.out.println("Transacción de reserva masiva exitosa");
+			conn.commit();
 			
 		}
 		catch (SQLException sqlException) {
@@ -1558,13 +1559,17 @@ public class AlohaTransactionManager {
 	public void deleteReservaColectiva(int reservaColectiva) throws Exception 
 	{
 		DAOReserva daoReserva = new DAOReserva( );           
-		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
+	
 		
 		
 		
 		try
 		{
+			
 			this.conn = darConexion();
+			conn.setAutoCommit(true);
+
+			deleteReserva(reservaColectiva, true );
 			
 
 		}
@@ -1581,7 +1586,6 @@ public class AlohaTransactionManager {
 		finally {
 			try {
 				daoReserva.cerrarRecursos();
-				daoHabitacion.cerrarRecursos(); 
 				if(this.conn!=null){
 					this.conn.close();					
 				}
