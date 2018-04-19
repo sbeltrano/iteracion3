@@ -283,7 +283,7 @@ public class AlohaTransactionManager {
 	 * @param hotel - la reserva. reserva != null
 	 * @throws Exception - Cualquier error que se genere agregando el hotel
 	 */
-	public void addReservaApartamento(Reserva reserva, int idCliente, int idApartamento) throws Exception 
+	public void addReservaApartamento(Reserva reserva, int idCliente, int idApartamento, int colectiva) throws Exception 
 	{
 
 		DAOReserva daoReserva = new DAOReserva( );
@@ -297,7 +297,7 @@ public class AlohaTransactionManager {
 			daoReserva.setConn(conn);
 			daoApartamento.setConn(conn);
 			
-			daoReserva.addReserva(reserva, idCliente, false);
+			daoReserva.addReserva(reserva, idCliente, colectiva);
 
 			if(daoApartamento.estaOcupado(idApartamento))
 			{
@@ -351,7 +351,7 @@ public class AlohaTransactionManager {
 	 * @param hotel - la reserva. reserva != null
 	 * @throws Exception - Cualquier error que se genere agregando el hotel
 	 */
-	public void addReservaVivienda(Reserva reserva, int idCliente, int idVivienda) throws Exception 
+	public void addReservaVivienda(Reserva reserva, int idCliente, int idVivienda, int colectiva) throws Exception 
 	{
 
 		DAOReserva daoReserva = new DAOReserva( );
@@ -374,7 +374,7 @@ public class AlohaTransactionManager {
 			}
 
 
-			daoReserva.addReserva(reserva, idCliente, false);
+			daoReserva.addReserva(reserva, idCliente, colectiva);
 			daoVivienda.reservar(idVivienda);
 			
 
@@ -413,7 +413,7 @@ public class AlohaTransactionManager {
 	 * @param hotel - la reserva. reserva != null
 	 * @throws Exception - Cualquier error que se genere agregando el hotel
 	 */
-	public void addReservaHabitacion(Reserva reserva, int idCliente, int idHabitacion) throws Exception 
+	public void addReservaHabitacion(Reserva reserva, int idCliente, int idHabitacion, int colectiva) throws Exception 
 	{
 
 		DAOReserva daoReserva = new DAOReserva( );
@@ -434,7 +434,8 @@ public class AlohaTransactionManager {
 				throw new Exception("La habitación está ocupada");
 			}
 			
-			daoReserva.addReserva(reserva, idCliente, false);
+			
+			daoReserva.addReserva(reserva, idCliente, colectiva);
 			daoHabitacion.reservar(idHabitacion);
 			
 			System.out.println("Reserva completada para la habitación con id:  " + idHabitacion);
@@ -1502,6 +1503,8 @@ public class AlohaTransactionManager {
 			if(reserva instanceof ContratoHabitacion)
 			{
 			
+				
+				//Descripcion in (Habitacion sencilla, Habitacion Doble, Suite )
 			String condicion = "DESCRIPCION = " + descripcion; 
 			List<Habitacion> habitacionesDescripcion = daoHabitacion.getHabitacionesCondicion(condicion); 
 			ArrayList<Habitacion> habitacionesValidas = new ArrayList<>();
@@ -1533,7 +1536,7 @@ public class AlohaTransactionManager {
 				
 				System.out.println("Comienzo de la transacción de reserva individual de la habitación " + habitacionesValidas.get(i).getId());
 				reservaColectiva.setId(id);
-				addReservaHabitacion(reserva, reservaColectiva.getClienteId(), habitacionesValidas.get(i).getId());
+				addReservaHabitacion(reserva, reservaColectiva.getClienteId(), habitacionesValidas.get(i).getId(), reservaColectiva.getId());
 				id++;
 			}
 			
@@ -1566,7 +1569,7 @@ public class AlohaTransactionManager {
 					
 					System.out.println("Comienzo de la transacción de reserva individual de la habitación " + aptoDescripcion.get(i).getId());
 					reservaColectiva.setId(id);
-					addReservaApartamento(reserva, reservaColectiva.getClienteId(), aptoDescripcion.get(i).getId());
+					addReservaApartamento(reserva, reservaColectiva.getClienteId(), aptoDescripcion.get(i).getId(), reservaColectiva.getId());
 					id++;
 				}
 				//Si se esta reservando un hotel
@@ -1583,9 +1586,20 @@ public class AlohaTransactionManager {
 				//TODO: revisar el nombre de numero habitaciones
 				String condicion = "MENAJE = " + menaje + " AND NUMEROHABITACIONES = " + numeroHab;
 				
-			
+				ArrayList<Vivienda> viviendasCondicion = daoVivienda.getViviendasCondicion(condicion); 
 				
+				if(viviendasCondicion.size() < reservaColectiva.getNumeroReservas())
+				{	conn.rollback(); 
+					throw new Exception("No hay suficientes habitaciones que cumplan los requisitos");
+				}			
 
+				for (int i = 0; i < reservaColectiva.getNumeroReservas(); i++) {
+					
+					addReservaVivienda(reserva, reservaColectiva.getClienteId(), viviendasCondicion.get(i).getId(), reservaColectiva.getId());
+					
+				}
+				
+				
 			}
 			else 
 			{
@@ -1681,6 +1695,54 @@ public class AlohaTransactionManager {
 	
 
 
+	/**
+	 * Metodo que modela la transaccion que elimina de la base de datos las reservas colectivas con el id dado <br/>
+	 * Solamente se actualiza si existe el bebedor en la Base de Datos <br/>
+	 * <b> post: </b> se ha eliminado el bebedor que entra por parametro <br/>
+	 * @param Cliente - bebedor a eliminar. bebedor != null
+	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
+	 */
+	public void desHabilitarAlojamineto(int reservaColectiva) throws Exception 
+	{
+		DAOReserva daoReserva = new DAOReserva( );           
+		
+		try
+		{
+			
+			this.conn = darConexion();
+			conn.setAutoCommit(true);
+
+			deleteReserva(reservaColectiva, true );
+			
+
+		}
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoReserva.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}	
+	}
+	
+
+	
 
 
 

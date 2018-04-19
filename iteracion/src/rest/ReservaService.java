@@ -79,7 +79,7 @@ public class ReservaService {
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
 					
-					tm.addReservaApartamento(reserva, idcliente, idapartamento);
+					tm.addReservaApartamento(reserva, idcliente, idapartamento,0);
 					
 					
 					return Response.status(200).entity(reserva).build();
@@ -110,7 +110,7 @@ public class ReservaService {
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
 					
-					tm.addReservaHabitacion(reserva, idCliente, idhabitacion);
+					tm.addReservaHabitacion(reserva, idCliente, idhabitacion,0);
 					
 					
 					return Response.status(200).entity(reserva).build();
@@ -139,7 +139,7 @@ public class ReservaService {
 				try {
 					System.out.println("entra al post disponibilidad " + reserva.getFechaFinal());
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
-					tm.addReservaVivienda(reserva, idCliente, idvivienda);
+					tm.addReservaVivienda(reserva, idCliente, idvivienda,0);
 					
 					
 					return Response.status(200).entity(reserva).build();
