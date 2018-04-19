@@ -33,6 +33,9 @@ import dao.DAOVivienda;
 import vos.Apartamento;
 import vos.Cliente;
 import vos.Comunidad;
+import vos.ContratoApto;
+import vos.ContratoHabitacion;
+import vos.ContratoVivienda;
 import vos.Habitacion;
 import vos.Hotel;
 import vos.PersonaOperador;
@@ -285,6 +288,7 @@ public class AlohaTransactionManager {
 
 		DAOReserva daoReserva = new DAOReserva( );
 		DAOApartamento daoApartamento = new DAOApartamento(); 
+
 		
 		try
 		{
@@ -371,7 +375,7 @@ public class AlohaTransactionManager {
 
 
 			daoReserva.addReserva(reserva, idCliente, false);
-			
+			daoVivienda.reservar(idVivienda);
 			
 
 
@@ -414,6 +418,7 @@ public class AlohaTransactionManager {
 
 		DAOReserva daoReserva = new DAOReserva( );
 		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
+		
 
 		try
 		{
@@ -528,6 +533,7 @@ public class AlohaTransactionManager {
 		}
 	}
 
+	
 	public void addVivienda(int operadorId, Vivienda vivienda) throws Exception 
 	{
 
@@ -1465,22 +1471,38 @@ public class AlohaTransactionManager {
 	{
 		DAOReserva daoReserva = new DAOReserva( );           
 		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
+		DAOApartamento daoApartamento = new DAOApartamento(); 
+		DAOVivienda daoVivienda = new DAOVivienda();
+		DAOServicios daoServicios = new DAOServicios();
 	
 		
 		try
 		{
 			this.conn = darConexion();
+			conn.setAutoCommit(false);
 			daoReserva.setConn(conn);
 			daoHabitacion.setConn(conn);
-			conn.setAutoCommit(false);
+			daoServicios.setConn(conn);
+		
 			
 			//Verificar si el cliente existe
 			getClienteById(reservaColectiva.getClienteId());
 			
-			//Buscar las habitaciones con descripcion
-			String condicion = "DESCRIPCION = " + reservaColectiva.getDescripcion();
-			Servicios serviciosDeseados = reservaColectiva.getServicios(); 
 			
+			
+			
+			String descripcion = reservaColectiva.getDescripcion();
+			Servicios serviciosDeseados = reservaColectiva.getServicios(); 
+			Reserva reserva = reservaColectiva.getReserva(); 
+			
+			
+			//
+			//Si la reserva es para una habitacion de un apartamento
+			//
+			if(reserva instanceof ContratoHabitacion)
+			{
+			
+			String condicion = "DESCRIPCION = " + descripcion; 
 			List<Habitacion> habitacionesDescripcion = daoHabitacion.getHabitacionesCondicion(condicion); 
 			ArrayList<Habitacion> habitacionesValidas = new ArrayList<>();
 			
@@ -1488,7 +1510,8 @@ public class AlohaTransactionManager {
 			{
 				
 				Habitacion habActual = habitacionesDescripcion.get(i); 
-				Servicios sevicioActual = habitacionesDescripcion.get(i).getServicios();
+				Servicios sevicioActual = daoServicios.getServicioHabitacion(habActual.getId()); 
+				
 				
 				if(serviciosDeseados.cumpleCondiciones(sevicioActual) && !daoHabitacion.estaOcupada(habActual.getId())	)
 				{
@@ -1503,15 +1526,72 @@ public class AlohaTransactionManager {
 			}
 			
 			
-			int id = reservaColectiva.getReserva().getId();
+			int id = reserva.getId();
 			
 			for(int i = 0; i < reservaColectiva.getNumeroReservas(); i++)
 			{	
 				
 				System.out.println("Comienzo de la transacción de reserva individual de la habitación " + habitacionesValidas.get(i).getId());
 				reservaColectiva.setId(id);
-				addReservaHabitacion(reservaColectiva.getReserva(), reservaColectiva.getClienteId(), habitacionesValidas.get(i).getId());
+				addReservaHabitacion(reserva, reservaColectiva.getClienteId(), habitacionesValidas.get(i).getId());
 				id++;
+			}
+			
+			
+			}
+			//
+			// Si la reserva es de un apartamento
+			//
+			else if(reserva instanceof ContratoApto)
+			{
+				daoApartamento.setConn(conn);
+				
+				//La descripcion puede ser AMOBLADO O NO AMOBLADO
+				String condicion = descripcion.equals("AMOBLADO") ? "AMOBLADO = 1" : "AMOBLADO = 0";
+				
+				List<Apartamento> aptoDescripcion = daoApartamento.getAptosCondicion(condicion); 
+				ArrayList<Apartamento> aptosValidos = new ArrayList<>();
+		
+			
+				if(aptosValidos.size() < reservaColectiva.getNumeroReservas())
+				{	conn.rollback(); 
+					throw new Exception("No hay suficientes habitaciones que cumplan los requisitos");
+				}
+				
+				
+				int id = reserva.getId();
+				
+				for(int i = 0; i < reservaColectiva.getNumeroReservas(); i++)
+				{	
+					
+					System.out.println("Comienzo de la transacción de reserva individual de la habitación " + aptoDescripcion.get(i).getId());
+					reservaColectiva.setId(id);
+					addReservaApartamento(reserva, reservaColectiva.getClienteId(), aptoDescripcion.get(i).getId());
+					id++;
+				}
+				//Si se esta reservando un hotel
+			}else if(reserva instanceof ContratoVivienda)
+			{
+				daoVivienda.setConn(conn);
+				//TODO: Hacer el caso de contrato vivienda
+				
+				ContratoVivienda contratoViv = (ContratoVivienda) reserva; 
+				
+				String menaje = contratoViv.isMenaje() ? "1": "0"; 
+				int numeroHab = contratoViv.getNumeroHabitaciones(); 
+				
+				//TODO: revisar el nombre de numero habitaciones
+				String condicion = "MENAJE = " + menaje + " AND NUMEROHABITACIONES = " + numeroHab;
+				
+			
+				
+
+			}
+			else 
+			{
+				
+				//TODO: Hacer el caso de contrato vivienda
+				
 			}
 			
 			System.out.println("Transacción de reserva masiva exitosa");
@@ -1535,6 +1615,10 @@ public class AlohaTransactionManager {
 		finally {
 			try {
 				daoReserva.cerrarRecursos();
+				daoApartamento.cerrarRecursos(); 
+				daoVivienda.cerrarRecursos();
+				daoHabitacion.cerrarRecursos(); 
+				daoServicios.cerrarRecursos();
 				if(this.conn!=null){
 					this.conn.close();					
 				}
@@ -1559,9 +1643,6 @@ public class AlohaTransactionManager {
 	public void deleteReservaColectiva(int reservaColectiva) throws Exception 
 	{
 		DAOReserva daoReserva = new DAOReserva( );           
-	
-		
-		
 		
 		try
 		{

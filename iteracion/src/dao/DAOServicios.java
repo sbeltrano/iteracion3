@@ -113,8 +113,44 @@ public class DAOServicios {
 		
 		
 		
+		public Servicios findServicioById(int id)throws SQLException, Exception
+		{
+			
+			Servicios servicio = null;
+			
+			String sql = String.format("SELECT * FROM SERVICIOS WHERE SERVICIOSID = %2$s", USUARIO, id);
+			
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			ResultSet rs = prepStmt.executeQuery();
+
+			if(rs.next()) {
+				servicio = convertResultSetToServicios(rs);
+			}
+
+			return servicio;
+			
+		}
 		
 		
+		public Servicios getServicioHabitacion(int idHabitacion)throws SQLException, Exception
+		{
+			
+			Servicios servicio = null;
+			
+			String sql = String.format("SELECT * FROM SERVICIOS WHERE SERVICIOSID = %2$s", USUARIO, idHabitacion);
+			
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			ResultSet rs = prepStmt.executeQuery();
+
+			if(rs.next()) {
+				servicio = convertResultSetToServicios(rs);
+			}
+
+			return servicio;
+			
+		}
 		
 		/**
 		 * Metodo que cierra todos los recursos que se encuentran en el arreglo de recursos<br/>

@@ -175,6 +175,8 @@ public class DAOHabitacion {
 		return habitaciones;
 	}
 
+	
+
 
 	public void deleteHabitacion(Habitacion habitacion) throws SQLException
 	{
@@ -240,7 +242,7 @@ public class DAOHabitacion {
 		String descripcion = resultSet.getString("DESCRIPCION"); 
 		boolean compartida = resultSet.getBoolean("COMPARTIDA"); 
 		boolean ocupada = resultSet.getBoolean("OCUPADA");
-
+		
 
 
 		habitacion = new Habitacion(null, id, compartida, descripcion, ocupada);

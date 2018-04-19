@@ -100,7 +100,33 @@ public class DAOApartamento {
 		}
 		
 		
+		public ArrayList<Apartamento> getAptosCondicion(String condicion) throws SQLException, Exception {
+			ArrayList<Apartamento> aptos = new ArrayList<>();
+
+			
+			String sql = String.format( "SELECT * FROM %1$s.APARTAMENTO WHERE %2$s", 
+					USUARIO, condicion);
+
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			ResultSet rs = prepStmt.executeQuery();
+			
+			System.out.println(sql);
+			
+					
+			while (rs.next()) {
+				
+				
+				Apartamento apto = convertResultSetToApto(rs);
+				
+				if(apto!= null)
+				aptos.add(apto);
+			}
+			return aptos;
+		}
 		
+		
+	
 		
 		public Apartamento findAptoByid(int idApto) throws SQLException
 		{
