@@ -108,6 +108,56 @@ public class DAOHotel {
 			
 		}
 		
+		/**
+		 * Metodo que obtiene la informacion del hotel en la Base de Datos que tiene el identificador dado por parametro<br/>
+		 * <b>Precondicion: </b> la conexion a sido inicializadoa <br/> 
+		 * @param id el identificador del hotel
+		 * @return la informacion del bebedor que cumple con los criterios de la sentecia SQL
+		 * 			Null si no existe el bebedor conlos criterios establecidos
+		 * @throws SQLException SQLException Genera excepcion si hay error en la conexion o en la consulta SQL
+		 * @throws Exception Si se genera un error dentro del metodo.
+		 */
+		public boolean estaHabilitado(int id) throws SQLException, Exception 
+		{
+			boolean retorno  = false;
+
+			String sql = String.format("SELECT * FROM %1$s.HOTELERIA WHERE HOTELERIAID = %2$d", USUARIO, id); 
+
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			ResultSet rs = prepStmt.executeQuery();
+
+			if(rs.next()) {
+				retorno = rs.getBoolean("HABILITADO");
+			}
+
+			return retorno;
+		}
+		
+		public void desHabilitarHotel(int id) throws SQLException
+		{
+			String sql = String.format("UPDATE %1$s.HOTELERIA SET HABILITADO = 0 WHERE HOTELERIAID = %2$s",
+					USUARIO, id);
+			System.out.println(sql);
+			
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			prepStmt.executeQuery();
+		}
+		
+		
+		public void habilitarHotel(int id)throws SQLException
+		{
+			
+			String sql = String.format("UPDATE %1$s.HOTELERIA SET HABILITADO = 1 WHERE HOTELERIAID = %2$s",
+					USUARIO, id);
+			System.out.println(sql);
+			
+			
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			prepStmt.executeQuery();
+		}
 		
 		/**
 		 * Metodo que obtiene la informacion de todos los hoteles en la Base de Datos <br/>

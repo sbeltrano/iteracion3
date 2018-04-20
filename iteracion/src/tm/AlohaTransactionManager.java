@@ -1702,17 +1702,17 @@ public class AlohaTransactionManager {
 	 * @param Cliente - bebedor a eliminar. bebedor != null
 	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
 	 */
-	public void desHabilitarAlojamineto(int reservaColectiva) throws Exception 
+	public void desHabilitarHotel(int alojamiento) throws Exception 
 	{
 		DAOReserva daoReserva = new DAOReserva( );           
-		
+		DAOHotel daoHotel = new DAOHotel(); 
 		try
 		{
 			
 			this.conn = darConexion();
 			conn.setAutoCommit(true);
 
-			deleteReserva(reservaColectiva, true );
+			
 			
 
 		}

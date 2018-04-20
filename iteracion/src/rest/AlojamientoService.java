@@ -7,6 +7,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -289,6 +290,86 @@ public class AlojamientoService {
 				return Response.status( 500 ).entity( doErrorMessage( e ) ).build( );
 			}
 		}
+		
+		
+		/**
+		 * Metodo que deshabilita una vivienda. <br/>
+		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/reservas/{{idreserva}} <br/>
+		 * @return	<b>Response Status 200</b> - JSON que contiene la reserva  <br/>
+		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+		 */		
+		@PUT
+		@Path("deshabilitarvivienda/{id: \\d+}")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON })
+		public Response desHabilitarVivienda(@PathParam("id") int id) {	
+			
+			try {
+				
+				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+				
+			
+				
+				return Response.status(200).entity(id).build();
+			} 
+			catch (Exception e) {
+				return Response.status(500).entity(doErrorMessage(e)).build();
+			}
+		}
+		
+		/**
+		 * Metodo que deshabilita un hotel . <br/>
+		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/reservas/{{idreserva}} <br/>
+		 * @return	<b>Response Status 200</b> - JSON que contiene la reserva  <br/>
+		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+		 */		
+		@PUT
+		@Path("deshabilitarhotel/{id: \\d+}")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON })
+		public Response desHabilitarHotel(@PathParam("id") int id) {	
+			
+			try {
+				
+				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+				
+				tm.desHabilitarHotel(id);
+				
+				return Response.status(200).entity(id).build();
+			} 
+			catch (Exception e) {
+				return Response.status(500).entity(doErrorMessage(e)).build();
+			}
+		}
+		
+		/**
+		 * Metodo que deshabilita un hotel . <br/>
+		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/reservas/{{idreserva}} <br/>
+		 * @return	<b>Response Status 200</b> - JSON que contiene la reserva  <br/>
+		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+		 */		
+		@PUT
+		@Path("deshabilitarhabitacion/{id: \\d+}")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON })
+		public Response desHabilitarHabitacion(@PathParam("id") int id) {	
+			
+			try {
+				
+				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+				
+				
+				
+				return Response.status(200).entity(id).build();
+			} 
+			catch (Exception e) {
+				return Response.status(500).entity(doErrorMessage(e)).build();
+			}
+		}
+		
 		
 
 }
