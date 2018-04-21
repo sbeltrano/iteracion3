@@ -27,6 +27,7 @@ import dao.DAOCliente;
 import dao.DAOHabitacion;
 import dao.DAOHotel;
 import dao.DAOOperador;
+import dao.DAORFC1;
 import dao.DAOReserva;
 import dao.DAOServicios;
 import dao.DAOVivienda;
@@ -39,6 +40,7 @@ import vos.ContratoVivienda;
 import vos.Habitacion;
 import vos.Hotel;
 import vos.PersonaOperador;
+import vos.RFC1;
 import vos.Reserva;
 import vos.ReservaColectiva;
 import vos.Servicios;
@@ -1742,10 +1744,52 @@ public class AlohaTransactionManager {
 	}
 	
 
-	
+	//----------------------------------------------------------------------------------------------------------------------------------
+	// REQUERIMIENTOS DE CONSULTA
+	//----------------------------------------------------------------------------------------------------------------------------------
 
 
+	/**
+	 * - MOSTRAR EL DINERO RECIBIDO POR CADA PROVEEDOR DE ALOJAMIENTO DURANTE EL AÑO ACTUAL Y EL AÑO CORRIDO <br/>
+	 * @param name -id del operador a buscar. id != null
+	 * @return Bebedor - operador que se obtiene como resultado de la consulta.
+	 * @throws Exception -  cualquier error que se genere durante la transaccion
+	 */
+	public List<RFC1> getDineroOperadores() throws Exception {
+		DAORFC1 daoRFC1 = new DAORFC1();
+		List<RFC1> reservasOperadores;
+		try 
+		{
+			this.conn = darConexion();
+			daoRFC1.setConn(conn);
 
+			reservasOperadores = daoRFC1.getDineroOperadores();
+		}
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoRFC1.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return reservasOperadores;
+	}
 
 
 }

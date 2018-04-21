@@ -5,9 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import vos.Cliente;
 import vos.PersonaOperador;
+import vos.RFC1;
 
 public class DAOOperador {
 	
@@ -186,10 +188,4 @@ public class DAOOperador {
 			return operador;
 		}
 
-		
-		
-
-		
-		
-		
 }
