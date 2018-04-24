@@ -9,7 +9,6 @@ import java.util.List;
 
 import vos.Cliente;
 import vos.PersonaOperador;
-import vos.RFC1;
 
 public class DAOOperador {
 	

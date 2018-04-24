@@ -14,9 +14,11 @@ import vos.ContratoVivienda;
 import vos.Habitacion;
 import vos.PersonaOperador;
 import vos.RFC1;
+import vos.RFC2;
+import vos.RFC3;
 import vos.RFC1;
 
-public class DAORFC1 {
+public class DAORFC3 {
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	// CONSTANTES
@@ -49,55 +51,85 @@ public class DAORFC1 {
 	/**
 	 * Metodo constructor de la clase DAORFC1 <br/>
 	 */
-	public DAORFC1() {
+	public DAORFC3() {
 		recursos = new ArrayList<Object>();
 	}
 
-	public ArrayList<RFC1> getDineroOperadores() throws SQLException
+	public ArrayList<RFC3> getIndiceOcupamientoApto() throws SQLException
 	{
 
-		String sql = String.format("SELECT co.NOMBRE, ing.ingreso\r\n" + 
-				"FROM\r\n" + 
-				"(SELECT aco.COMUNIDADID, SUM(r.PRECIO) AS ingreso\r\n" + 
-				"FROM\r\n" + 
-				"(SELECT ao.COMUNIDADID, rha.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASAPTOS rha,\r\n" + 
-				"(SELECT a.APARTAMENTOID, a.COMUNIDADID\r\n" + 
-				"FROM %1$s.APARTAMENTO a) ao\r\n" + 
-				"WHERE ao.APARTAMENTOID = rha.APTOID\r\n" + 
-				"UNION\r\n" + 
-				"SELECT vo.COMUNIDADID, rhv.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASVIVIENDAS rhv,\r\n" + 
-				"(SELECT v.VIVIENDAID, v.COMUNIDADID\r\n" + 
-				"FROM %1$s.VIVIENDA v) vo\r\n" + 
-				"WHERE vo.VIVIENDAID=rhv.VIVIENDAID\r\n" + 
-				"UNION\r\n" + 
-				"SELECT ho.COMUNIDADID, rhh.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASHABITACIONES rhh,\r\n" + 
-				"(SELECT h.HABITACIONID, h.COMUNIDADID\r\n" + 
-				"FROM %1$s.HABITACION h) ho\r\n" + 
-				"WHERE ho.HABITACIONID=rhh.HABITACIONID) aco, %1$s.RESERVA r\r\n" + 
-				"WHERE aco.RESERVAID=r.RESERVAID\r\n" + 
-				"GROUP BY aco.COMUNIDADID) ing, %1$s.COMUNIDAD co\r\n" + 
-				"WHERE ing.COMUNIDADID=co.COMUNIDADID", USUARIO); 
-		
+		String sql = String.format("SELECT %1$s.APARTAMENTO.APARTAMENTOID AS aid, %1$s.APARTAMENTO.OCUPADO AS OCUPADO\n" + 
+				"		FROM %1$s.APARTAMENTO", USUARIO);
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		
 		
 
 		recursos.add(prepStmt);
 		ResultSet rs = prepStmt.executeQuery();
 		System.out.println("Sentencia = "+rs);
-		ArrayList<RFC1> reservas = new ArrayList<>();
+		ArrayList<RFC3> rfc3 = new ArrayList<>();
 
 		while (rs.next()) {
 			System.out.println("entra al next RFC1");
 
-			RFC1 reserva = convertResultSetToReserva(rs);
+			RFC3 reserva = convertResultSetToReservaApto(rs);
 
 			if(reserva!= null)
-			reservas.add(reserva);
+			rfc3.add(reserva);
 		}
-		return reservas;
+		return rfc3;
+
+	}
+	
+	public ArrayList<RFC3> getIndiceOcupamientoHabitacin() throws SQLException
+	{
+
+		String sql = String.format("SELECT %1$s.HABITACION.HABITACIONID AS hid, %1$s.HABITACION.OCUPADA AS OCUPADO\n" + 
+				"		FROM %1$s.HABITACION", USUARIO);
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		
+		
+
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		System.out.println("Sentencia = "+rs);
+		ArrayList<RFC3> rfc3 = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next RFC1");
+
+			RFC3 reserva = convertResultSetToReservaHabitacion(rs);
+
+			if(reserva!= null)
+			rfc3.add(reserva);
+		}
+		return rfc3;
+
+	}
+	
+	public ArrayList<RFC3> getIndiceOcupamientoVivienda() throws SQLException
+	{
+
+		String sql = String.format("SELECT  %1$s.VIVIENDA.VIVIENDAID AS vid,  %1$s.VIVIENDA.OCUPADA AS OCUPADO\n" + 
+				"		FROM  %1$s.VIVIENDA", USUARIO);
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		
+		
+
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		System.out.println("Sentencia = "+rs);
+		ArrayList<RFC3> rfc3 = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next RFC1");
+
+			RFC3 reserva = convertResultSetToReservaVivienda(rs);
+
+			if(reserva!= null)
+			rfc3.add(reserva);
+		}
+		return rfc3;
 
 	}
 	
@@ -138,16 +170,42 @@ public class DAORFC1 {
 	 * @return Reserva cuyos atributos corresponden a los valores asociados a un registro particular de la tabla Reservas.
 	 * @throws SQLException Si existe algun problema al extraer la informacion del ResultSet.
 	 */
-	public RFC1 convertResultSetToReserva(ResultSet resultSet) throws SQLException {
+	public RFC3 convertResultSetToReservaApto(ResultSet resultSet) throws SQLException {
 
 
-		RFC1 rfc1 = null;
+		RFC3 rfc3 = null;
 
-		String nombre = resultSet.getString("NOMBRE");
-		int ingreso = resultSet.getInt("INGRESO");
+		String tipoAlojamiento = "Apartamento";
+		int aljamientoId = resultSet.getInt("aid");
+		int estado = resultSet.getInt("OCUPADO");
+		rfc3 = new RFC3(tipoAlojamiento, aljamientoId, estado);
 
-		rfc1 = new RFC1(nombre, ingreso);
+		return rfc3;
+	}
+	
+	public RFC3 convertResultSetToReservaHabitacion(ResultSet resultSet) throws SQLException {
 
-		return rfc1;
+
+		RFC3 rfc3 = null;
+
+		String tipoAlojamiento = "Habitacion";
+		int aljamientoId = resultSet.getInt("hid");
+		int estado = resultSet.getInt("OCUPADO");
+		rfc3 = new RFC3(tipoAlojamiento, aljamientoId, estado);
+
+		return rfc3;
+	}
+	
+	public RFC3 convertResultSetToReservaVivienda(ResultSet resultSet) throws SQLException {
+
+
+		RFC3 rfc3 = null;
+
+		String tipoAlojamiento = "Vivienda";
+		int aljamientoId = resultSet.getInt("vid");
+		int estado = resultSet.getInt("OCUPADO");
+		rfc3 = new RFC3(tipoAlojamiento, aljamientoId, estado);
+
+		return rfc3;
 	}
 }

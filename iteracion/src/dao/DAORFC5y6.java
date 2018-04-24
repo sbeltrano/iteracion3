@@ -14,9 +14,12 @@ import vos.ContratoVivienda;
 import vos.Habitacion;
 import vos.PersonaOperador;
 import vos.RFC1;
+import vos.RFC2;
+import vos.RFC5y6;
+import vos.RFC5y6;
 import vos.RFC1;
 
-public class DAORFC1 {
+public class DAORFC5y6 {
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	// CONSTANTES
@@ -49,55 +52,68 @@ public class DAORFC1 {
 	/**
 	 * Metodo constructor de la clase DAORFC1 <br/>
 	 */
-	public DAORFC1() {
+	public DAORFC5y6() {
 		recursos = new ArrayList<Object>();
 	}
 
-	public ArrayList<RFC1> getDineroOperadores() throws SQLException
+	public ArrayList<RFC5y6> usoAlohandesParaTipoUsuario(String tipoUsuario) throws SQLException
 	{
-
-		String sql = String.format("SELECT co.NOMBRE, ing.ingreso\r\n" + 
-				"FROM\r\n" + 
-				"(SELECT aco.COMUNIDADID, SUM(r.PRECIO) AS ingreso\r\n" + 
-				"FROM\r\n" + 
-				"(SELECT ao.COMUNIDADID, rha.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASAPTOS rha,\r\n" + 
-				"(SELECT a.APARTAMENTOID, a.COMUNIDADID\r\n" + 
-				"FROM %1$s.APARTAMENTO a) ao\r\n" + 
-				"WHERE ao.APARTAMENTOID = rha.APTOID\r\n" + 
-				"UNION\r\n" + 
-				"SELECT vo.COMUNIDADID, rhv.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASVIVIENDAS rhv,\r\n" + 
-				"(SELECT v.VIVIENDAID, v.COMUNIDADID\r\n" + 
-				"FROM %1$s.VIVIENDA v) vo\r\n" + 
-				"WHERE vo.VIVIENDAID=rhv.VIVIENDAID\r\n" + 
-				"UNION\r\n" + 
-				"SELECT ho.COMUNIDADID, rhh.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASHABITACIONES rhh,\r\n" + 
-				"(SELECT h.HABITACIONID, h.COMUNIDADID\r\n" + 
-				"FROM %1$s.HABITACION h) ho\r\n" + 
-				"WHERE ho.HABITACIONID=rhh.HABITACIONID) aco, %1$s.RESERVA r\r\n" + 
-				"WHERE aco.RESERVAID=r.RESERVAID\r\n" + 
-				"GROUP BY aco.COMUNIDADID) ing, %1$s.COMUNIDAD co\r\n" + 
-				"WHERE ing.COMUNIDADID=co.COMUNIDADID", USUARIO); 
 		
+		String sql = String.format("SELECT *\r\n" + 
+				"		FROM(\r\n" + 
+				"		SELECT *\r\n" + 
+				"		FROM %1$s.COMUNIDAD\r\n" + 
+				"		WHERE %1$s.COMUNIDAD.TIPO='%2$s'),%1$s.RESERVA\r\n" + 
+				"		INNER JOIN %1$s.COMUNIDAD ON %1$s.COMUNIDAD.COMUNIDADID=%1$s.RESERVA.COMUNIDADID\r\n" + 
+				"		ORDER BY %1$s.RESERVA.COMUNIDADID ASC", USUARIO,tipoUsuario );
+
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		
-
+		System.out.println("SentenciaMakiaRFC4 = "+sql);
 		recursos.add(prepStmt);
 		ResultSet rs = prepStmt.executeQuery();
-		System.out.println("Sentencia = "+rs);
-		ArrayList<RFC1> reservas = new ArrayList<>();
+		ArrayList<RFC5y6> rfc5y6 = new ArrayList<>();
 
 		while (rs.next()) {
 			System.out.println("entra al next RFC1");
 
-			RFC1 reserva = convertResultSetToReserva(rs);
+			RFC5y6 reserva = rfc5convert(rs);
 
 			if(reserva!= null)
-			reservas.add(reserva);
+			rfc5y6.add(reserva);
 		}
-		return reservas;
+		return rfc5y6;
+
+	}
+	
+	public ArrayList<RFC5y6> usoAlohandesParaUsuario(int usuarioId) throws SQLException
+	{
+		String sql = String.format("SELECT *\r\n" + 
+				"FROM(\r\n" + 
+				"SELECT *\r\n" + 
+				"FROM %1$s.COMUNIDAD\r\n" + 
+				"WHERE %1$s.COMUNIDAD.TIPO='%2$s'), RESERVA\r\n" + 
+				"INNER JOIN %1$s.COMUNIDAD ON %1$s.COMUNIDAD.COMUNIDADID=%1$s.RESERVA.COMUNIDADID\r\n" + 
+				"ORDER BY %1$s.COMUNIDAD.COMUNIDADID ASC", USUARIO,usuarioId );
+
+		
+		
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		
+		System.out.println("SentenciaMakiaRFC5y6 = "+sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		ArrayList<RFC5y6> rfc5y6 = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next RFC1");
+
+			RFC5y6 reserva = rfc6convert(rs);
+
+			if(reserva!= null)
+			rfc5y6.add(reserva);
+		}
+		return rfc5y6;
 
 	}
 	
@@ -138,16 +154,47 @@ public class DAORFC1 {
 	 * @return Reserva cuyos atributos corresponden a los valores asociados a un registro particular de la tabla Reservas.
 	 * @throws SQLException Si existe algun problema al extraer la informacion del ResultSet.
 	 */
-	public RFC1 convertResultSetToReserva(ResultSet resultSet) throws SQLException {
+	public RFC5y6 rfc5convert(ResultSet resultSet) throws SQLException {
 
 
-		RFC1 rfc1 = null;
+		RFC5y6 rfc5y6 = null;
 
-		String nombre = resultSet.getString("NOMBRE");
-		int ingreso = resultSet.getInt("INGRESO");
+		int usuarioId = resultSet.getInt("COMUNIDADID");
+		String fechaInicial = resultSet.getString("FECHAINICIAL");
+		String FechaFinal = resultSet.getString("FECHAINICIAL");
+		
+		int mesesContratados = 69;
+		String tipoUsuario = resultSet.getString("TIPO");
+		String caracteristicasAlojamiento = resultSet.getString("TIPOR");;
+		int dineroPagado = resultSet.getInt("PRECIO");
 
-		rfc1 = new RFC1(nombre, ingreso);
 
-		return rfc1;
+		rfc5y6 = new RFC5y6(usuarioId, tipoUsuario, mesesContratados, caracteristicasAlojamiento, dineroPagado);
+
+		return rfc5y6;
+	}
+	/**
+	 * Metodo que transforma el resultado obtenido de una consulta SQL (sobre la tabla RESERVAS) en una instancia de la clase Cliente	 * @param resultSet ResultSet con la informacion de un bebedor que se obtuvo de la base de datos.
+	 * @return Reserva cuyos atributos corresponden a los valores asociados a un registro particular de la tabla Reservas.
+	 * @throws SQLException Si existe algun problema al extraer la informacion del ResultSet.
+	 */
+	public RFC5y6 rfc6convert(ResultSet resultSet) throws SQLException {
+
+
+		RFC5y6 rfc5y6 = null;
+
+		int usuarioId = resultSet.getInt("COMUNIDADID");
+		String fechaInicial = resultSet.getString("FECHAINICIAL");
+		String FechaFinal = resultSet.getString("FECHAINICIAL");
+		
+		int mesesContratados = 69;
+		String tipoUsuario = resultSet.getString("TIPO");
+		String caracteristicasAlojamiento = resultSet.getString("TIPOR");;
+		int dineroPagado = resultSet.getInt("PRECIO");
+
+
+		rfc5y6 = new RFC5y6(usuarioId, tipoUsuario, mesesContratados, caracteristicasAlojamiento, dineroPagado);
+
+		return rfc5y6;
 	}
 }

@@ -14,9 +14,10 @@ import vos.ContratoVivienda;
 import vos.Habitacion;
 import vos.PersonaOperador;
 import vos.RFC1;
+import vos.RFC2;
 import vos.RFC1;
 
-public class DAORFC1 {
+public class DAORFC2 {
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	// CONSTANTES
@@ -49,37 +50,20 @@ public class DAORFC1 {
 	/**
 	 * Metodo constructor de la clase DAORFC1 <br/>
 	 */
-	public DAORFC1() {
+	public DAORFC2() {
 		recursos = new ArrayList<Object>();
 	}
 
-	public ArrayList<RFC1> getDineroOperadores() throws SQLException
+	public ArrayList<RFC2> get20MasPopularesApto() throws SQLException
 	{
-
-		String sql = String.format("SELECT co.NOMBRE, ing.ingreso\r\n" + 
-				"FROM\r\n" + 
-				"(SELECT aco.COMUNIDADID, SUM(r.PRECIO) AS ingreso\r\n" + 
-				"FROM\r\n" + 
-				"(SELECT ao.COMUNIDADID, rha.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASAPTOS rha,\r\n" + 
-				"(SELECT a.APARTAMENTOID, a.COMUNIDADID\r\n" + 
-				"FROM %1$s.APARTAMENTO a) ao\r\n" + 
-				"WHERE ao.APARTAMENTOID = rha.APTOID\r\n" + 
-				"UNION\r\n" + 
-				"SELECT vo.COMUNIDADID, rhv.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASVIVIENDAS rhv,\r\n" + 
-				"(SELECT v.VIVIENDAID, v.COMUNIDADID\r\n" + 
-				"FROM %1$s.VIVIENDA v) vo\r\n" + 
-				"WHERE vo.VIVIENDAID=rhv.VIVIENDAID\r\n" + 
-				"UNION\r\n" + 
-				"SELECT ho.COMUNIDADID, rhh.RESERVAID\r\n" + 
-				"FROM %1$s.RESERVASHISTORICASHABITACIONES rhh,\r\n" + 
-				"(SELECT h.HABITACIONID, h.COMUNIDADID\r\n" + 
-				"FROM %1$s.HABITACION h) ho\r\n" + 
-				"WHERE ho.HABITACIONID=rhh.HABITACIONID) aco, %1$s.RESERVA r\r\n" + 
-				"WHERE aco.RESERVAID=r.RESERVAID\r\n" + 
-				"GROUP BY aco.COMUNIDADID) ing, %1$s.COMUNIDAD co\r\n" + 
-				"WHERE ing.COMUNIDADID=co.COMUNIDADID", USUARIO); 
+		String sql = String.format("SELECT ap.APTOID, ap.total, at.OCUPADO\n" + 
+				"		FROM\n" + 
+				"		(select %1$s.RESERVASHISTORICASAPTOS.APTOID,count(%1$s.RESERVASHISTORICASAPTOS.APTOID) as total\n" + 
+				"		from %1$s.RESERVASHISTORICASAPTOS \n" + 
+				"		group by %1$s.RESERVASHISTORICASAPTOS.APTOID) ap, %1$s.APARTAMENTO at\n" + 
+				"		WHERE at.APARTAMENTOID=ap.APTOID", USUARIO);
+		
+		
 		
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		
@@ -87,21 +71,81 @@ public class DAORFC1 {
 		recursos.add(prepStmt);
 		ResultSet rs = prepStmt.executeQuery();
 		System.out.println("Sentencia = "+rs);
-		ArrayList<RFC1> reservas = new ArrayList<>();
+		ArrayList<RFC2> rfc2 = new ArrayList<>();
 
 		while (rs.next()) {
 			System.out.println("entra al next RFC1");
 
-			RFC1 reserva = convertResultSetToReserva(rs);
+			RFC2 reserva = convertResultSetToReserva(rs);
 
 			if(reserva!= null)
-			reservas.add(reserva);
+			rfc2.add(reserva);
 		}
-		return reservas;
+		return rfc2;
 
 	}
 	
+	public ArrayList<RFC2> get20MasPopularesHabitacion() throws SQLException
+	{
+		String sql = String.format("SELECT ap.HABITACIONID, ap.total, at.OCUPADA\n" + 
+				"		FROM\n" + 
+				"		(select %1$s.RESERVASHISTORICASHABITACIONES.HABITACIONID,count(%1$s.RESERVASHISTORICASHABITACIONES.HABITACIONID) as total\n" + 
+				"		from %1$s.RESERVASHISTORICASHABITACIONES \n" + 
+				"		group by %1$s.RESERVASHISTORICASHABITACIONES.HABITACIONID) ap, %1$s.HABITACION at\n" + 
+				"		WHERE at.HABITACIONID=ap.HABITACIONID", USUARIO);
+		
+		
+		
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		
+
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		System.out.println("Sentencia = "+rs);
+		ArrayList<RFC2> rfc2 = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next RFC1");
+
+			RFC2 reserva = convertResultSetToReservaHabitacion(rs);
+
+			if(reserva!= null)
+			rfc2.add(reserva);
+		}
+		return rfc2;
+
+	}
 	
+	public ArrayList<RFC2> get20MasPopularesAptoVivienda() throws SQLException
+	{
+		String sql = String.format("SELECT ap.VIVIENDAID, ap.total, at.OCUPADA\n" + 
+				"		FROM\n" + 
+				"		(select %1$s.RESERVASHISTORICASVIVIENDAS.VIVIENDAID,count(%1$s.RESERVASHISTORICASVIVIENDAS.VIVIENDAID) as total\n" + 
+				"		from %1$s.RESERVASHISTORICASVIVIENDAS \n" + 
+				"		group by %1$s.RESERVASHISTORICASVIVIENDAS.VIVIENDAID) ap, %1$s.VIVIENDA at\n" + 
+				"		WHERE at.VIVIENDAID=ap.VIVIENDAID", USUARIO);
+		
+		
+		
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		
+
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		System.out.println("Sentencia = "+rs);
+		ArrayList<RFC2> rfc2 = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next RFC1");
+
+			RFC2 reserva = convertResultSetToReservaVivienda(rs);
+
+			if(reserva!= null)
+			rfc2.add(reserva);
+		}
+		return rfc2;
+
+	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	// METODOS AUXILIARES
@@ -138,16 +182,42 @@ public class DAORFC1 {
 	 * @return Reserva cuyos atributos corresponden a los valores asociados a un registro particular de la tabla Reservas.
 	 * @throws SQLException Si existe algun problema al extraer la informacion del ResultSet.
 	 */
-	public RFC1 convertResultSetToReserva(ResultSet resultSet) throws SQLException {
+	public RFC2 convertResultSetToReserva(ResultSet resultSet) throws SQLException {
 
 
-		RFC1 rfc1 = null;
+		RFC2 rfc2 = null;
 
-		String nombre = resultSet.getString("NOMBRE");
-		int ingreso = resultSet.getInt("INGRESO");
+		int alojamientoId = resultSet.getInt("APTOID");
+		int vecesRentado = resultSet.getInt("total");
 
-		rfc1 = new RFC1(nombre, ingreso);
+		rfc2 = new RFC2(alojamientoId, vecesRentado);
 
-		return rfc1;
+		return rfc2;
+	}
+	
+	public RFC2 convertResultSetToReservaHabitacion(ResultSet resultSet) throws SQLException {
+
+
+		RFC2 rfc2 = null;
+
+		int alojamientoId = resultSet.getInt("HABITACIONID");
+		int vecesRentado = resultSet.getInt("total");
+
+		rfc2 = new RFC2(alojamientoId, vecesRentado);
+
+		return rfc2;
+	}
+	
+	public RFC2 convertResultSetToReservaVivienda(ResultSet resultSet) throws SQLException {
+
+
+		RFC2 rfc2 = null;
+
+		int alojamientoId = resultSet.getInt("VIVIENDAID");
+		int vecesRentado = resultSet.getInt("total");
+
+		rfc2 = new RFC2(alojamientoId, vecesRentado);
+
+		return rfc2;
 	}
 }
