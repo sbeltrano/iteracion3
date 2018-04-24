@@ -4,7 +4,7 @@
  * Universidad de los Andes
  * Bogota, Colombia
  * 
- * Actividad: Tutorial Parranderos: Arquitectura
+ * Alohandes 
  * Autores:
  * 			Juan Pablo Campos	-	
  * 			Santiago Beltran	-	
@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 
 import dao.DAOApartamento;
 import dao.DAOCliente;
@@ -43,6 +44,7 @@ import vos.PersonaOperador;
 import vos.RFC1;
 import vos.Reserva;
 import vos.ReservaColectiva;
+import vos.Respuesta;
 import vos.Servicios;
 import vos.Vivienda;
 
@@ -291,28 +293,29 @@ public class AlohaTransactionManager {
 		DAOReserva daoReserva = new DAOReserva( );
 		DAOApartamento daoApartamento = new DAOApartamento(); 
 
-		
+
 		try
 		{
-			this.conn = darConexion(); 
-			conn.setAutoCommit(false);
+
 			daoReserva.setConn(conn);
 			daoApartamento.setConn(conn);
-			
-			daoReserva.addReserva(reserva, idCliente, colectiva);
+
+
 
 			if(daoApartamento.estaOcupado(idApartamento))
 			{
 				throw new Exception("El apartamento está ocupado");
 			}
-			
-			
-			
-			Cliente cliente = getClienteById(idCliente); 
-			
-			
-			conn.commit();
-				
+
+
+			//Cliente cliente = getClienteById(idCliente); 
+
+
+			daoReserva.addReserva(reserva, idCliente, colectiva);
+			daoApartamento.ocupar(idApartamento, reserva.getId());
+
+
+
 
 
 		}
@@ -321,7 +324,7 @@ public class AlohaTransactionManager {
 			sqlException.printStackTrace();
 			conn.rollback();
 			throw sqlException;
-			
+
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
@@ -333,9 +336,9 @@ public class AlohaTransactionManager {
 			try {
 				daoReserva.cerrarRecursos();
 				daoApartamento.cerrarRecursos();
-				
-				if(this.conn!=null){
-					this.conn.close();					
+
+				if(this.conn!=null && colectiva == 0){
+					conn.close();		
 				}
 			}
 			catch (SQLException exception) {
@@ -366,9 +369,9 @@ public class AlohaTransactionManager {
 			daoReserva.setConn(conn);
 			daoVivienda.setConn(conn);
 			conn.setAutoCommit(false);
-			
+
 			Cliente cliente = getClienteById(idCliente); 
-		
+
 
 			if(daoVivienda.estaOcupada(idVivienda))
 			{
@@ -378,7 +381,7 @@ public class AlohaTransactionManager {
 
 			daoReserva.addReserva(reserva, idCliente, colectiva);
 			daoVivienda.reservar(idVivienda);
-			
+
 
 
 		}
@@ -420,28 +423,42 @@ public class AlohaTransactionManager {
 
 		DAOReserva daoReserva = new DAOReserva( );
 		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
-		
+
 
 		try
 		{
-			this.conn = darConexion(); 
 
-			Cliente cliente = getClienteById(idCliente); 
-
+			this.conn = darConexion();
 
 			daoReserva.setConn(conn);
 			daoHabitacion.setConn(conn);
+
+
+			System.out.println("Despues de darconexion");
+			Cliente cliente = getClienteById(idCliente); 
+
+
+
+
+			System.out.println("despues de addreserva");
+
 			if(daoHabitacion.estaOcupada(idHabitacion))
 			{
 				throw new Exception("La habitación está ocupada");
 			}
-			
-			
+
 			daoReserva.addReserva(reserva, idCliente, colectiva);
-			daoHabitacion.reservar(idHabitacion);
-			
+			daoHabitacion.reservar(idHabitacion,reserva.getId());
+
+
+			if(colectiva == 0)
+			{
+				darConexion().commit();
+			}
+
+
 			System.out.println("Reserva completada para la habitación con id:  " + idHabitacion);
-			
+
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
@@ -452,7 +469,7 @@ public class AlohaTransactionManager {
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
-			exception.printStackTrace();
+
 			System.out.println("Reserva fallida para la habitación con id:  " + idHabitacion);
 			conn.rollback(); 
 			throw exception;
@@ -484,7 +501,7 @@ public class AlohaTransactionManager {
 
 		DAOHotel daoHotel = new DAOHotel( );
 		DAOHabitacion daoHabitacion = new DAOHabitacion();
-		
+
 
 		List<Habitacion> habitaciones = hotel.getHabitaciones(); 
 
@@ -536,7 +553,7 @@ public class AlohaTransactionManager {
 		}
 	}
 
-	
+
 	public void addVivienda(int operadorId, Vivienda vivienda) throws Exception 
 	{
 
@@ -1126,6 +1143,88 @@ public class AlohaTransactionManager {
 	}
 
 
+	public Hotel getHotelById(int id) throws Exception {
+		DAOHotel daoHabitacion = new DAOHotel();
+		Hotel habitacion = null;
+		try 
+		{
+			this.conn = darConexion();
+			daoHabitacion.setConn(conn);
+			habitacion = daoHabitacion.findHotelById(id);
+
+			if(habitacion == null)
+			{
+				throw new Exception("El cliente con el id = " + id + " no se encuentra persistido en la base de datos.");				
+			}
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoHabitacion.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return habitacion;
+	}
+
+	public Servicios getServicioByHabitacionId(int idHabitacion) throws Exception {
+		DAOServicios daoServicios = new DAOServicios();
+		Servicios servicio = null;
+		System.out.println("Entra al getServicioByhabitcion");
+		try 
+		{
+			this.conn = darConexion();
+			daoServicios.setConn(conn);
+			servicio = daoServicios.getServicioHabitacion(idHabitacion);
+
+			if(servicio == null)
+			{
+				throw new Exception("El servicio con el id de habitacion = " + idHabitacion + " no se encuentra persistido en la base de datos.");				
+			}
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoServicios.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return servicio;
+	}
+
+
 	/**
 	 * Metodo que modela la transaccion que busca el cliente en la base de datos que tiene el ID dado por parametro. <br/>
 	 * @param name -id del bebedor a buscar. id != null
@@ -1172,6 +1271,107 @@ public class AlohaTransactionManager {
 	}
 
 
+	public ArrayList<Reserva> getReservasHotel(int idHotel) throws Exception {
+		DAOReserva daoReserva = new DAOReserva();
+		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
+		ArrayList<Reserva> reservas = new ArrayList<>();
+
+		try 
+		{
+			this.conn = darConexion();
+			daoReserva.setConn(conn);
+			daoHabitacion.setConn(conn);
+
+			ArrayList<Integer> reservasId = daoHabitacion.getReservasId(idHotel); 
+
+			for (Integer integer : reservasId) {
+
+				String condicion = "RESERVAID = " + integer; 
+				reservas.add(daoReserva.getReservaCondicion(condicion)); 
+
+			}
+
+
+			if(reservas.size() == 0 )
+			{
+				throw new Exception("No hay reservas para esa habitacion");				
+			}
+
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoReserva.cerrarRecursos();
+				daoHabitacion.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();		
+					return reservas;
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return reservas;
+
+	}
+
+
+	public List<Reserva> getReservasColectivaByID(int idColectivo) throws Exception {
+		DAOReserva daoReserva = new DAOReserva();
+		List<Reserva> reservas = null;
+		try 
+		{
+			this.conn = darConexion();
+			conn.setAutoCommit(true);
+			daoReserva.setConn(conn);
+			reservas = daoReserva.getReservasColectiva(idColectivo);
+
+			if(reservas.size() == 0 || reservas == null)
+			{
+				throw new Exception("No hay reservas con este id");				
+			}
+
+
+
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoReserva.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return reservas;
+	}
+
 	/**
 	 * Metodo que modela la transaccion que busca el operador en la base de datos que tiene el ID dado por parametro. <br/>
 	 * @param name -id del operador a buscar. id != null
@@ -1217,6 +1417,114 @@ public class AlohaTransactionManager {
 		return operador;
 	}
 
+
+	public boolean habitacionEstaOcupada(int id) throws Exception {
+		DAOHabitacion daoHab = new DAOHabitacion();
+		boolean retorno = false; 
+		try 
+		{
+			this.conn = darConexion();
+			daoHab.setConn(conn);
+			retorno = daoHab.estaOcupada(id);
+
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoHab.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return retorno;
+	}
+
+	public ArrayList<Habitacion> getHabitacionesCondicion(String condicion) throws Exception {
+		DAOHabitacion daoHab = new DAOHabitacion();
+		ArrayList<Habitacion> retorno = new ArrayList<>(); 
+		try 
+		{
+			this.conn = darConexion();
+			daoHab.setConn(conn);
+			retorno = daoHab.getHabitacionesCondicion(condicion);
+
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoHab.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return retorno;
+	}
+
+	public ArrayList<Apartamento> getAptosCondicion(String condicion) throws Exception {
+		DAOApartamento daoApto = new DAOApartamento();
+		ArrayList<Apartamento> retorno = new ArrayList<>(); 
+		try 
+		{
+			this.conn = darConexion();
+			daoApto.setConn(conn);
+			retorno = daoApto.getAptosCondicion(condicion);
+
+		} 
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoApto.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}
+		return retorno;
+	}
 
 
 	//-------------------------------------------------------------
@@ -1412,22 +1720,25 @@ public class AlohaTransactionManager {
 	 */
 	public void deleteReserva(int idReserva, boolean reservaColectiva) throws Exception 
 	{
+
+
 		DAOReserva daoReserva = new DAOReserva( );
-		
-		
-		
+
 		try
-		{
-			conn.setAutoCommit(true);
-			this.conn = darConexion();
+		{		
+
 			daoReserva.setConn( conn );
-			if(reservaColectiva)
+
+			if(!reservaColectiva)
 			{
-			daoReserva.cancelarReservaColectiva(idReserva);
-			}else{
-			daoReserva.cancelarReserva(idReserva);
+
+				conn.setAutoCommit(true);
 			}
-			
+
+
+			daoReserva.cancelarReserva(idReserva);
+
+
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
@@ -1444,7 +1755,8 @@ public class AlohaTransactionManager {
 		finally {
 			try {
 				daoReserva.cerrarRecursos();
-				if(this.conn!=null){
+				if(this.conn!=null && !reservaColectiva){
+					System.out.println("Cierra la conexion en delete reserva");
 					this.conn.close();					
 				}
 			}
@@ -1470,174 +1782,203 @@ public class AlohaTransactionManager {
 	 * @param Cliente - bebedor a eliminar. bebedor != null
 	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
 	 */
-	public void agregarReservaColectiva(ReservaColectiva reservaColectiva) throws Exception 
+	public Respuesta agregarReservaColectiva(ReservaColectiva reservaColectiva) throws Exception 
 	{
-		DAOReserva daoReserva = new DAOReserva( );           
-		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
-		DAOApartamento daoApartamento = new DAOApartamento(); 
+
+
+
 		DAOVivienda daoVivienda = new DAOVivienda();
-		DAOServicios daoServicios = new DAOServicios();
-	
-		
+		DAOServicios daoServicios = new DAOServicios(); 
+		Respuesta respuesta = new Respuesta(""); 
+
+
 		try
 		{
-			this.conn = darConexion();
-			conn.setAutoCommit(false);
-			daoReserva.setConn(conn);
-			daoHabitacion.setConn(conn);
-			daoServicios.setConn(conn);
-		
-			
-			//Verificar si el cliente existe
-			getClienteById(reservaColectiva.getClienteId());
-			
-			
-			
-			
+
+
 			String descripcion = reservaColectiva.getDescripcion();
 			Servicios serviciosDeseados = reservaColectiva.getServicios(); 
 			Reserva reserva = reservaColectiva.getReserva(); 
-			
-			
+			ContratoApto contratoApto = reservaColectiva.getContratoApto(); 
+
 			//
 			//Si la reserva es para una habitacion de un apartamento
 			//
 			if(reserva instanceof ContratoHabitacion)
 			{
-			
-				
-				//Descripcion in (Habitacion sencilla, Habitacion Doble, Suite )
-			String condicion = "DESCRIPCION = " + descripcion; 
-			List<Habitacion> habitacionesDescripcion = daoHabitacion.getHabitacionesCondicion(condicion); 
-			ArrayList<Habitacion> habitacionesValidas = new ArrayList<>();
-			
-			for (int i = 0; i < habitacionesDescripcion.size(); i++) 
-			{
-				
-				Habitacion habActual = habitacionesDescripcion.get(i); 
-				Servicios sevicioActual = daoServicios.getServicioHabitacion(habActual.getId()); 
-				
-				
-				if(serviciosDeseados.cumpleCondiciones(sevicioActual) && !daoHabitacion.estaOcupada(habActual.getId())	)
-				{
-					habitacionesValidas.add(habActual);
-				}
-				
-			}
-		
-			if(habitacionesValidas.size() < reservaColectiva.getNumeroReservas())
-			{	conn.rollback(); 
-				throw new Exception("No hay suficientes habitaciones que cumplan los requisitos");
-			}
-			
-			
-			int id = reserva.getId();
-			
-			for(int i = 0; i < reservaColectiva.getNumeroReservas(); i++)
-			{	
-				
-				System.out.println("Comienzo de la transacción de reserva individual de la habitación " + habitacionesValidas.get(i).getId());
-				reservaColectiva.setId(id);
-				addReservaHabitacion(reserva, reservaColectiva.getClienteId(), habitacionesValidas.get(i).getId(), reservaColectiva.getId());
-				id++;
-			}
-			
-			
+
+
+
+
 			}
 			//
 			// Si la reserva es de un apartamento
 			//
-			else if(reserva instanceof ContratoApto)
+			else if(contratoApto != null)
 			{
-				daoApartamento.setConn(conn);
-				
+				respuesta.agregar("Empieza reserva colectiva de apartamentos" );
+
+
+				respuesta.agregar("Busca los apartamentos con la condicion requerida" );
 				//La descripcion puede ser AMOBLADO O NO AMOBLADO
 				String condicion = descripcion.equals("AMOBLADO") ? "AMOBLADO = 1" : "AMOBLADO = 0";
-				
-				List<Apartamento> aptoDescripcion = daoApartamento.getAptosCondicion(condicion); 
-				ArrayList<Apartamento> aptosValidos = new ArrayList<>();
-		
-			
+
+				condicion+= "AND OCUPADO = 0"; 
+
+
+				ArrayList<Apartamento> aptosValidos = getAptosCondicion(condicion);
+
+
 				if(aptosValidos.size() < reservaColectiva.getNumeroReservas())
-				{	conn.rollback(); 
-					throw new Exception("No hay suficientes habitaciones que cumplan los requisitos");
+				{	
+					respuesta.agregar("No hay suficientes apartamentos con el requisito dado: " + aptosValidos.size() + " validos , " +  reservaColectiva.getNumeroReservas() + " necesarios");
+					return respuesta; 		
 				}
-				
-				
-				int id = reserva.getId();
-				
+
+
+
+				int id = contratoApto.getId();
+				this.conn = darConexion(); 
+				conn.setAutoCommit(false);
+
+
 				for(int i = 0; i < reservaColectiva.getNumeroReservas(); i++)
 				{	
-					
-					System.out.println("Comienzo de la transacción de reserva individual de la habitación " + aptoDescripcion.get(i).getId());
-					reservaColectiva.setId(id);
-					addReservaApartamento(reserva, reservaColectiva.getClienteId(), aptoDescripcion.get(i).getId(), reservaColectiva.getId());
+
+					respuesta.agregar("Comienzo de la transacción de reserva individual del apartamento con el id " + aptosValidos.get(i).getId());
+					reservaColectiva.getContratoApto().setId(id);
+					addReservaApartamento(contratoApto, reservaColectiva.getClienteId(), aptosValidos.get(i).getId(), reservaColectiva.getId());
+
 					id++;
 				}
+
+				conn.commit(); 
 				//Si se esta reservando un hotel
 			}else if(reserva instanceof ContratoVivienda)
 			{
 				daoVivienda.setConn(conn);
 				//TODO: Hacer el caso de contrato vivienda
-				
+
 				ContratoVivienda contratoViv = (ContratoVivienda) reserva; 
-				
+
 				String menaje = contratoViv.isMenaje() ? "1": "0"; 
 				int numeroHab = contratoViv.getNumeroHabitaciones(); 
-				
-				//TODO: revisar el nombre de numero habitaciones
+
+
 				String condicion = "MENAJE = " + menaje + " AND NUMEROHABITACIONES = " + numeroHab;
-				
+
 				ArrayList<Vivienda> viviendasCondicion = daoVivienda.getViviendasCondicion(condicion); 
-				
+
 				if(viviendasCondicion.size() < reservaColectiva.getNumeroReservas())
 				{	conn.rollback(); 
-					throw new Exception("No hay suficientes habitaciones que cumplan los requisitos");
+				throw new Exception("No hay suficientes viviendas que cumplan los requisitos");
 				}			
 
 				for (int i = 0; i < reservaColectiva.getNumeroReservas(); i++) {
-					
+
 					addReservaVivienda(reserva, reservaColectiva.getClienteId(), viviendasCondicion.get(i).getId(), reservaColectiva.getId());
-					
+
 				}
-				
-				
+
+
 			}
 			else 
 			{
-				
-				//TODO: Hacer el caso de contrato vivienda
-				
+
+				this.conn = darConexion();
+				conn.setAutoCommit(false);
+				daoServicios.setConn(conn);
+
+				respuesta.agregar("Comienza de una habitación con descripcion = " + descripcion);
+
+
+
+
+				String condicion = String.format("DESCRIPCION = '%1$s'", descripcion); 
+
+				respuesta.agregar("Revisa cuales habitaciones cumplen la descripcion de habitacion");
+				List<Habitacion> habitacionesDescripcion = getHabitacionesCondicion(condicion); 
+				ArrayList<Habitacion> habitacionesValidas = new ArrayList<>();
+
+				respuesta.agregar("Revisa cuales habitaciones cumplen los requisitos de servicios");
+				for (int i = 0; i < habitacionesDescripcion.size(); i++) 
+				{
+
+
+					Habitacion habActual = habitacionesDescripcion.get(i); 
+
+
+					Servicios sevicioActual = daoServicios.getServicioHabitacion(habActual.getId()); 
+
+
+					if(serviciosDeseados.cumpleCondiciones(sevicioActual) && !habitacionEstaOcupada(habActual.getId())	)
+					{
+						habitacionesValidas.add(habActual);
+					}
+
+				}
+
+
+
+				if(habitacionesValidas.size() < reservaColectiva.getNumeroReservas())
+				{	
+					respuesta.agregar("Lanza excepcion porque no hay suficientes habitaciones que cumplan los requisitos");
+					darConexion().rollback(); 
+
+					return respuesta; 
+				}
+
+
+				int id = reserva.getId();
+				//conn cerrada
+
+				darConexion().commit(); 
+				for(int i = 0; i < reservaColectiva.getNumeroReservas(); i++)
+				{	
+
+					respuesta.agregar("Comienzo de la transacción de reserva individual de la habitación " + habitacionesValidas.get(i).getId());
+					reservaColectiva.getReserva().setId(id);
+					addReservaHabitacion(reserva, reservaColectiva.getClienteId(), habitacionesValidas.get(i).getId(), reservaColectiva.getId());
+					id++;
+				}
+
+
 			}
-			
-			System.out.println("Transacción de reserva masiva exitosa");
-			conn.commit();
-			
+
+
+			darConexion().commit(); 
+			respuesta.agregar("Reserva exitosa");
+			return respuesta;
+
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
 			sqlException.printStackTrace();
 			System.out.println("Transacción de reserva masiva fallida");
-			conn.rollback();
-			throw sqlException;
+			respuesta.agregar("[EXCEPTION] SQLException:" + sqlException.getMessage()); respuesta.agregar("Transacción de reserva masiva fallida");
+			darConexion().rollback();
+
+			return respuesta;
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
 			exception.printStackTrace();
-			System.out.println("Transacción de reserva masiva fallida");
-			conn.rollback(); 
-			throw exception;
+			respuesta.agregar("[EXCEPTION] General Exception:" + exception.getMessage()); respuesta.agregar("Transacción de reserva masiva fallida");
+			darConexion().rollback(); 
+			return respuesta;
 		} 
 		finally {
 			try {
-				daoReserva.cerrarRecursos();
-				daoApartamento.cerrarRecursos(); 
-				daoVivienda.cerrarRecursos();
-				daoHabitacion.cerrarRecursos(); 
+
+
+				daoVivienda.cerrarRecursos(); 
 				daoServicios.cerrarRecursos();
+
 				if(this.conn!=null){
+
 					this.conn.close();					
 				}
+
 			}
 			catch (SQLException exception) {
 				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
@@ -1646,8 +1987,10 @@ public class AlohaTransactionManager {
 			}
 		}	
 	}
-	
-	
+
+
+
+
 
 	/**
 	 * Metodo que modela la transaccion que elimina de la base de datos las reservas colectivas con el id dado <br/>
@@ -1658,30 +2001,66 @@ public class AlohaTransactionManager {
 	 */
 	public void deleteReservaColectiva(int reservaColectiva) throws Exception 
 	{
-		DAOReserva daoReserva = new DAOReserva( );           
-		
+
+
+		DAOApartamento daoApartamento = new DAOApartamento();
+		DAOHabitacion daoHabitacion = new DAOHabitacion();
+		DAOReserva daoReserva = new DAOReserva( );
+
 		try
 		{
-			
-			this.conn = darConexion();
-			conn.setAutoCommit(true);
 
-			deleteReserva(reservaColectiva, true );
-			
+			List<Reserva> reservas = getReservasColectivaByID(reservaColectiva);
 
+			this.conn = darConexion(); 
+			conn.setAutoCommit(false);
+
+
+			daoApartamento.setConn(conn);
+			daoHabitacion.setConn(conn);
+
+			for (Reserva reserva : reservas) {
+
+
+				if (reserva instanceof ContratoApto)
+				{
+
+					daoApartamento.desocuparColectiva(reserva.getId());
+
+				}else if(reserva instanceof ContratoVivienda)
+				{
+
+				}
+				else
+				{
+					daoHabitacion.desocuparColectiva(reserva.getId());
+				}		
+
+			}			
+
+			daoReserva.setConn(conn);
+			daoReserva.cancelarReservaColectiva(reservas.get(0).getId());
+
+			conn.commit();
+			System.out.println("Exito");
 		}
 		catch (SQLException sqlException) {
 			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
 			sqlException.printStackTrace();
+			darConexion().rollback();
 			throw sqlException;
 		} 
 		catch (Exception exception) {
 			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
 			exception.printStackTrace();
+			darConexion().rollback();
 			throw exception;
 		} 
 		finally {
 			try {
+
+				daoApartamento.cerrarRecursos();
+				daoHabitacion.cerrarRecursos();
 				daoReserva.cerrarRecursos();
 				if(this.conn!=null){
 					this.conn.close();					
@@ -1694,7 +2073,7 @@ public class AlohaTransactionManager {
 			}
 		}	
 	}
-	
+
 
 
 	/**
@@ -1704,18 +2083,79 @@ public class AlohaTransactionManager {
 	 * @param Cliente - bebedor a eliminar. bebedor != null
 	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
 	 */
-	public void desHabilitarHotel(int alojamiento) throws Exception 
+	public Respuesta desHabilitarHotel(int idHotel) throws Exception 
 	{
+
 		DAOReserva daoReserva = new DAOReserva( );           
 		DAOHotel daoHotel = new DAOHotel(); 
+		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
+		Respuesta respuesta = new Respuesta(""); 
+		respuesta.agregar("Comienza transaccion para deshabilitar hotel");
+		int i = 0;
 		try
 		{
-			
-			this.conn = darConexion();
-			conn.setAutoCommit(true);
+			respuesta.agregar("Busca las habitacines del hotel");
+			List<Habitacion>habitacionesHotel = getHabitacionesCondicion("HOTELERIAID = " + idHotel);
+			respuesta.agregar("Busca las reservas de las habitaciones");
 
+			List<Reserva> reservas  = getReservasHotel(idHotel);
+			System.out.println("Tamaño reservas hotel = " + reservas.size());
+
+
+			this.conn = darConexion();
+			conn.setAutoCommit(true);	
+			daoHotel.setConn(conn);
+
+			respuesta.agregar("Deshabilita el hotel con id = " + idHotel);
+			daoHotel.desHabilitarHotel(idHotel);
+
+			daoHabitacion.setConn(conn);
+
+			respuesta.agregar("Deshabilita la habitacion del hotel con id = " + idHotel);
+			for (int j = 0; j < habitacionesHotel.size(); j++) {
+				
+				daoHabitacion.desHabilitarHabitacion(habitacionesHotel.get(j).getId());
+			}
+			
+			for (i = 0; i< habitacionesHotel.size() && i< reservas.size(); i++ ) {
+
+				
+				
+				int j = 0;	
+				
+				String condicion = String.format("DESCRIPCION = '%1$s' AND OCUPADA = 0 AND HABILITADO = 1", habitacionesHotel.get(i).getDescripcion()); 
+				
+				List<Habitacion> habitacionesCumplen = daoHabitacion.getHabitacionesCondicion(condicion);
+				System.out.println("tamaño habitaciones cumplen = " + habitacionesCumplen.size());
+				
+				if(habitacionesCumplen.size() == 0)
+				{
+					respuesta.agregar("Ya no hay más habitaciones");
+					return respuesta;
+				}
+				
+				if(reservas.get(i) != null && habitacionesCumplen.get(j) != null)
+				daoHabitacion.setReservaId(reservas.get(i).getId(), habitacionesCumplen.get(j).getId());
+
+
+
+			}
 			
 			
+			respuesta.agregar("No se pudo encontrar una habitacion dispobile para  las resservas:" );
+			for (i = i ; i <reservas.size(); i++) {
+				respuesta.agregar("" +reservas.get(i).getId());
+			}
+				
+			
+			
+			
+			daoReserva.setConn(conn);
+
+
+
+			conn.commit(); 
+			return respuesta;
 
 		}
 		catch (SQLException sqlException) {
@@ -1731,6 +2171,8 @@ public class AlohaTransactionManager {
 		finally {
 			try {
 				daoReserva.cerrarRecursos();
+				daoHabitacion.cerrarRecursos();
+				daoHotel.cerrarRecursos();
 				if(this.conn!=null){
 					this.conn.close();					
 				}
@@ -1742,7 +2184,170 @@ public class AlohaTransactionManager {
 			}
 		}	
 	}
-	
+
+
+	/**
+	 * Metodo que modela la transaccion que elimina de la base de datos las reservas colectivas con el id dado <br/>
+	 * Solamente se actualiza si existe el bebedor en la Base de Datos <br/>
+	 * <b> post: </b> se ha eliminado el bebedor que entra por parametro <br/>
+	 * @param Cliente - bebedor a eliminar. bebedor != null
+	 * @throws Exception - Cualquier error que se genere eliminando al bebedor.
+	 */
+	public Respuesta reHabilitarHotel(int idHotel) throws Exception 
+	{
+
+
+		DAOHotel daoHotel = new DAOHotel(); 
+		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
+		Respuesta respuesta = new Respuesta(""); 
+		respuesta.agregar("Comienza transaccion para deshabilitar hotel");
+		try
+		{
+			respuesta.agregar("Busca las habitacines del hotel");
+			List<Habitacion>habitacionesHotel = getHabitacionesCondicion("HOTELERIAID = " + idHotel);
+			respuesta.agregar("Busca las reservas de las habitaciones");
+
+			this.conn = darConexion();
+			conn.setAutoCommit(false);	
+			daoHotel.setConn(conn);
+
+			respuesta.agregar("reHabilita el hotel con id = " + idHotel);
+			daoHotel.reHabilitarHotel(idHotel);
+
+			daoHabitacion.setConn(conn);
+
+			for (Habitacion habitacion : habitacionesHotel) {
+
+				respuesta.agregar("reHabilita la habitacion del hotel con id = " + idHotel);
+				daoHabitacion.reHabilitarHabitacion(habitacion.getId());
+			}
+
+
+
+
+			conn.commit(); 
+			return respuesta;
+
+		}
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+
+				daoHabitacion.cerrarRecursos();
+				daoHotel.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}	
+	}
+
+
+	public void desHabilitarHabitacion(int idHabitacion) throws Exception 
+	{
+
+		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
+
+		
+		try
+		{
+
+			this.conn = darConexion();
+			conn.setAutoCommit(false);	
+
+			daoHabitacion.setConn(conn);
+			daoHabitacion.desHabilitarHabitacion(idHabitacion);
+
+			conn.commit(); 
+
+		}
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+				daoHabitacion.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}	
+	}
+
+	public Respuesta reHabilitarHabitacion(int idHabitacion) throws Exception 
+	{
+
+
+
+		DAOHabitacion daoHabitacion = new DAOHabitacion(); 
+		Respuesta respuesta = new Respuesta(""); 
+		respuesta.agregar("Comienza transaccion para reHabilitar hotel");
+		try
+		{
+
+
+			this.conn = darConexion();
+			conn.setAutoCommit(false);	
+
+			daoHabitacion.setConn(conn);
+			respuesta.agregar("reHabilita la habitacion del hotel con id = " + idHabitacion);
+			daoHabitacion.reHabilitarHabitacion(idHabitacion);
+
+			conn.commit(); 
+			return respuesta;
+
+		}
+		catch (SQLException sqlException) {
+			System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+			sqlException.printStackTrace();
+			throw sqlException;
+		} 
+		catch (Exception exception) {
+			System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+			exception.printStackTrace();
+			throw exception;
+		} 
+		finally {
+			try {
+
+				daoHabitacion.cerrarRecursos();
+				if(this.conn!=null){
+					this.conn.close();					
+				}
+			}
+			catch (SQLException exception) {
+				System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			}
+		}	
+	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	// REQUERIMIENTOS DE CONSULTA

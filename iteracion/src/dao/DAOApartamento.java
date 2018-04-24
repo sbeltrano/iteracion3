@@ -157,18 +157,36 @@ public class DAOApartamento {
 		}
 		
 		
-		public void ocupar(int idApto) throws SQLException
+		public void ocupar(int idApto, int idReserva) throws SQLException
 		{
-			String sql = String.format("INSERT INTO %1$s.APARTAMENTO (OCUPADO) VALUES (%2$s) WHERE APARTAMENTOID = %3$s ",
+			String sql = String.format("UPDATE %1$s.APARTAMENTO SET OCUPADO = %2$s, RESERVAID = %3$s WHERE APARTAMENTOID = %4$s",
 						USUARIO, 
 						1, 
+						idReserva,
 						idApto); 
+			System.out.println(sql);
 			
 			PreparedStatement prepStmt = conn.prepareStatement(sql);
 			recursos.add(prepStmt);
 			prepStmt.executeQuery();
 			
 		}
+		
+		public void desocuparColectiva(int idReserva) throws SQLException
+		{
+			
+			String sql = String.format("UPDATE %1$s.APARTAMENTO SET OCUPADO = %2$s WHERE RESERVAID = %3$s", 
+					USUARIO, 
+					0,
+					idReserva);
+
+			System.out.println(sql);
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			prepStmt.executeQuery();
+			
+		}
+		
 		
 		public void deleteApto(Apartamento apto) throws SQLException
 		{	

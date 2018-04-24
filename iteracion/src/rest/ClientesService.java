@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 
 import tm.AlohaTransactionManager;
 import vos.Cliente;
+import vos.Servicios;
 
 /**
  * @author Santiago Cortes Fernandez 	- 	s.cortes@uniandes.edu.co
@@ -179,6 +180,24 @@ public class ClientesService {
 		}
 	}
 
+	
+	@GET
+	@Path( "/servicio" )
+	@Consumes
+	public Response getServicioById(){
+		
+		try{
+			AlohaTransactionManager tm = new AlohaTransactionManager( getPath( ) );
+			System.out.println("Entra al service");
+			
+			Servicios servicio = tm.getServicioByHabitacionId(1);
+			return Response.status( 200 ).entity( servicio ).build( );			
+		}
+		catch( Exception e )
+		{
+			return Response.status( 500 ).entity( doErrorMessage( e ) ).build( );
+		}
+	}
 
 	
 

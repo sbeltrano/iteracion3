@@ -145,6 +145,16 @@ public class DAOHotel {
 			prepStmt.executeQuery();
 		}
 		
+		public void reHabilitarHotel(int id) throws SQLException
+		{
+			String sql = String.format("UPDATE %1$s.HOTELERIA SET HABILITADO = 1 WHERE HOTELERIAID = %2$s",
+					USUARIO, id);
+			System.out.println(sql);
+			
+			PreparedStatement prepStmt = conn.prepareStatement(sql);
+			recursos.add(prepStmt);
+			prepStmt.executeQuery();
+		}
 		
 		public void habilitarHotel(int id)throws SQLException
 		{

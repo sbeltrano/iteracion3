@@ -67,9 +67,13 @@ public class ReservaColectiva {
 	@JsonProperty(value="reserva")
 	private Reserva reserva;
 	
+	@JsonProperty(value="contratoApto")
+	private ContratoApto contratoApto;
 	
-	public ReservaColectiva(@JsonProperty(value="clienteId")int clienteId, @JsonProperty(value="reserva") Reserva reserva,@JsonProperty(value="descripcion")String descripcion, @JsonProperty(value="numeroReservas")int numeroReservas, @JsonProperty(value="servicios")Servicios servicios,@JsonProperty(value="id") int id) {
+	
+	public ReservaColectiva(@JsonProperty(value="contratoApto")ContratoApto contratoApto, @JsonProperty(value="clienteId")int clienteId, @JsonProperty(value="reserva") Reserva reserva,@JsonProperty(value="descripcion")String descripcion, @JsonProperty(value="numeroReservas")int numeroReservas, @JsonProperty(value="servicios")Servicios servicios,@JsonProperty(value="id") int id) {
 		super();
+		this.contratoApto = contratoApto; 
 		this.reserva = reserva;
 		this.descripcion = descripcion;
 		this.numeroReservas = numeroReservas;
@@ -84,6 +88,21 @@ public class ReservaColectiva {
 	
 	
 	
+	public ContratoApto getContratoApto() {
+		return contratoApto;
+	}
+
+
+	public void setContratoApto(ContratoApto contratoApto) {
+		this.contratoApto = contratoApto;
+	}
+
+
+
+
+
+
+
 	public int getClienteId() {
 		return clienteId;
 	}

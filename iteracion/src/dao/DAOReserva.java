@@ -117,7 +117,7 @@ public class DAOReserva {
 
 			if(colectiva == 0){
 			sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID,PRECIOSERVICIOS, INCLUYEADMIN, INCLUYESERVPUBLICOS , TIPOR, COMUNIDADID)"
-					+ " VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, %7$s, %8$s, '%9$s', %10$s  )", 
+					+ " VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, %7$s, %8$s, '%9$s', %10$s)", 
 					USUARIO, 
 					contratoApto.getFechaInicial(),
 					contratoApto.getFechaFinal(),
@@ -210,24 +210,26 @@ public class DAOReserva {
 			
 			if(colectiva == 0 )
 			{
-			sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, COMUNIDADID) VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s)", 
+			sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, COMUNIDADID, TIPOR) VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, '%7$s')", 
 					USUARIO, 
 					reserva.getFechaInicial(),
 					reserva.getFechaFinal(),
 					reserva.getPrecio(),
 					reserva.getId(), 
-					comunidadId);
+					comunidadId,
+					"HOTEL");
 			} 
 			else 
 			{
-				sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, COMUNIDADID) VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, %7$s)", 
+				sql = String.format("INSERT INTO %1$s.RESERVA (FECHAINICIAL, FECHAFINAL, PRECIO, RESERVAID, COMUNIDADID, COLECTIVAID, TIPOR) VALUES ('%2$s', '%3$s', %4$s, %5$s, %6$s, %7$s, '%8$S')", 
 						USUARIO, 
 						reserva.getFechaInicial(),
 						reserva.getFechaFinal(),
 						reserva.getPrecio(),
 						reserva.getId(), 
 						comunidadId,
-						colectiva);
+						colectiva,
+						"HOTEL");
 			}
 			System.out.println(sql);
 
@@ -245,7 +247,7 @@ public class DAOReserva {
 	public ArrayList<Reserva> getReservasCliente(int id) throws SQLException
 	{
 
-		String sql = String.format("SELECT * FROM %1$s.RESERVAS WHERE COMUNIDADID = %2$s", USUARIO, id); 
+		String sql = String.format("SELECT * FROM %1$s.RESERVA WHERE COMUNIDADID = %2$s", USUARIO, id); 
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		recursos.add(prepStmt);
 		ResultSet rs = prepStmt.executeQuery();
@@ -263,13 +265,80 @@ public class DAOReserva {
 		return reservas;
 
 	}
+	//TODO getReservas colectiva creado
+	public ArrayList<Reserva> getReservasColectiva(int idcolectiva) throws SQLException
+	{
+
+		String sql = String.format("SELECT * FROM %1$s.RESERVA WHERE COLECTIVAID = %2$s", USUARIO, idcolectiva); 
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+
+		ArrayList<Reserva> reservas = new ArrayList<>();
+
+		while (rs.next()) {
+			
+
+			Reserva reserva = convertResultSetToReserva(rs);
+
+			if(reserva!= null)
+			reservas.add(reserva);
+		}
+		return reservas;
+
+	}
+	
+	//TODO: creado
+	public Reserva getReservaCondicion(String condicion)throws SQLException
+	{
+		Reserva reserva = null; 
+		System.out.println("Get de habitaciones con condicion = " + condicion);
+		String sql = String.format("SELECT * FROM %1$s.RESERVA WHERE %2$s", USUARIO, condicion); 
+		System.out.println(sql);
+		
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+
+		if (rs.next()) {
+			System.out.println("entra al next");
+
+			reserva = convertResultSetToReserva(rs);
+		}
 
 
+		return reserva;
+		
+		
+	}
+	
+	public ArrayList<Reserva> getReservas(int id) throws SQLException
+	{
+
+		String sql = String.format("SELECT * FROM %1$s.RESERVA WHERE COMUNIDADID = %2$s", USUARIO, id); 
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		System.out.println(sql);
+		ArrayList<Reserva> reservas = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next");
+
+			Reserva reserva = convertResultSetToReserva(rs);
+
+			if(reserva!= null)
+			reservas.add(reserva);
+		}
+		return reservas;
+
+	}
 
 	public void cancelarReserva(int reservaId) throws SQLException
 	{
 
-		String sql = String.format("DELETE FROM %1$s.RESERVAS WHERE RESERVAID = %2$s", USUARIO, reservaId); 
+		String sql = String.format("DELETE FROM %1$s.RESERVA WHERE RESERVAID = %2$s", USUARIO, reservaId); 
+		System.out.println(sql);
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		recursos.add(prepStmt);
 		prepStmt.executeQuery();
@@ -280,10 +349,15 @@ public class DAOReserva {
 	public void cancelarReservaColectiva(int reservaId) throws SQLException
 	{
 
-		String sql = String.format("DELETE FROM %1$s.RESERVAS WHERE COLECTIVAID = %2$s", USUARIO, reservaId); 
+		String sql = String.format("DELETE FROM %1$s.RESERVA WHERE COLECTIVAID = %2$s", USUARIO, reservaId); 
+		System.out.println(sql);
+		
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		System.out.println("Pasa despues del prept");
 		recursos.add(prepStmt);
+		System.out.println("Despues de recursos add");
 		prepStmt.executeQuery();
+		System.out.println("Despues del execute");
 		
 	}
 	

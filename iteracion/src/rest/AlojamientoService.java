@@ -24,6 +24,7 @@ import vos.Habitacion;
 import vos.Hostal;
 import vos.Hotel;
 import vos.PersonaOperador;
+import vos.Respuesta;
 import vos.Servicios;
 import vos.Vivienda;
 
@@ -333,6 +334,7 @@ public class AlojamientoService {
 			
 			try {
 				
+				System.out.println("Entra al service");
 				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 				
 				tm.desHabilitarHotel(id);
@@ -352,6 +354,34 @@ public class AlojamientoService {
 		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 		 */		
 		@PUT
+		@Path("rehabilitarhotel/{id: \\d+}")
+		@Consumes({ MediaType.APPLICATION_JSON })
+		@Produces({ MediaType.APPLICATION_JSON })
+		public Response reHabilitarHotel(@PathParam("id") int id) {	
+			
+			try {
+				
+				System.out.println("Entra al service");
+				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+				
+				tm.reHabilitarHotel(id);
+				
+				return Response.status(200).entity(id).build();
+			} 
+			catch (Exception e) {
+				return Response.status(500).entity(doErrorMessage(e)).build();
+			}
+		}
+		
+		
+		/**
+		 * Metodo que deshabilita una habitacion . <br/>
+		 * <b>Precondicion: </b> el archivo <em>'conectionData'</em> ha sido inicializado con las credenciales del usuario <br/>
+		 * <b>URL: </b> http://localhost:8080/Iteracion1/rest/reservas/{{idreserva}} <br/>
+		 * @return	<b>Response Status 200</b> - JSON que contiene la reserva  <br/>
+		 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
+		 */		
+		@PUT
 		@Path("deshabilitarhabitacion/{id: \\d+}")
 		@Consumes({ MediaType.APPLICATION_JSON })
 		@Produces({ MediaType.APPLICATION_JSON })
@@ -360,7 +390,7 @@ public class AlojamientoService {
 			try {
 				
 				AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
-				
+				tm.desHabilitarHabitacion(id);
 				
 				
 				return Response.status(200).entity(id).build();

@@ -14,19 +14,6 @@ public class DAOServicios {
 	
 	//Nombres columnas
 	
-	public final static String SERVICIOSID = "SERVICIOSID";
-	public final static String AGUA = "AGUA";
-	public final static String BAÑERA = "BAÑERA";
-	public final static String COCINETA = "COCINETA";
-	public final static String PARQUEADERO = "PARQUEADERO";
-	public final static String PISCINA = "PISCINA";
-	public final static String RECEPCION24H = "RECEPCION24H";	
-	public final static String RESTAURANTE = "RESTAURANTE";	
-	public final static String SALA = "SALA";		
-	public final static String TV = "TV";	
-	public final static String WIFI = "WIFI";	
-	public final static String YACUZZI = "YACUZZI";
-	public final static String HABITACIONID = "HABITACIONID";
 	
 	
 	//----------------------------------------------------------------------------------------------------------------------------------
@@ -137,14 +124,18 @@ public class DAOServicios {
 		{
 			
 			Servicios servicio = null;
+			System.out.println("Entra al getServicios habitacion");
+		
 			
-			String sql = String.format("SELECT * FROM SERVICIOS WHERE SERVICIOSID = %2$s", USUARIO, idHabitacion);
+			String sql = String.format("SELECT * FROM %1$s.SERVICIOS WHERE HABITACIONID = %2$s", USUARIO, idHabitacion);
 			
+			System.out.println(sql);
 			PreparedStatement prepStmt = conn.prepareStatement(sql);
 			recursos.add(prepStmt);
 			ResultSet rs = prepStmt.executeQuery();
-
+			
 			if(rs.next()) {
+				System.out.println("Entra el next de getservicioHabitacion");
 				servicio = convertResultSetToServicios(rs);
 			}
 
@@ -181,19 +172,19 @@ public class DAOServicios {
 			Servicios servicios = null;
 			
 
-			int id = resultSet.getInt(SERVICIOSID);
-			boolean agua = resultSet.getBoolean(AGUA);
-			boolean bañera = resultSet.getBoolean(BAÑERA);
-			boolean cocineta = resultSet.getBoolean(COCINETA);
-			boolean piscina = resultSet.getBoolean(PISCINA); 
-			boolean parqueadero = resultSet.getBoolean(PARQUEADERO);
-			boolean recepcion = resultSet.getBoolean(RECEPCION24H);
-			boolean restaurante = resultSet.getBoolean(RESTAURANTE); 
-			boolean sala = resultSet.getBoolean(SALA);
-			boolean tv = resultSet.getBoolean(TV);
-			boolean wifi = resultSet.getBoolean(WIFI); 
-			boolean yacuzzi = resultSet.getBoolean(YACUZZI);
-			int habitacionid = resultSet.getInt(HABITACIONID); 
+			int id = resultSet.getInt("SERVICIOSID");
+			boolean agua = resultSet.getBoolean("AGUA");
+			boolean bañera = resultSet.getBoolean("BAÑERA");
+			boolean cocineta = resultSet.getBoolean("COCINETA");
+			boolean piscina = resultSet.getBoolean("PISCINA"); 
+			boolean parqueadero = resultSet.getBoolean("PARQUEADERO");
+			boolean recepcion = resultSet.getBoolean("RECEPCION24H");
+			boolean restaurante = resultSet.getBoolean("RESTAURANTE"); 
+			boolean sala = resultSet.getBoolean("SALA");
+			boolean tv = resultSet.getBoolean("TV");
+			boolean wifi = resultSet.getBoolean("WIFI"); 
+			boolean yacuzzi = resultSet.getBoolean("YACUZZI");
+			int habitacionid = resultSet.getInt("HABITACIONID"); 
 			
 				
 			

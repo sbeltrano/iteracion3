@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 import vos.Apartamento;
 import vos.Cliente;
 import vos.Habitacion;
@@ -92,11 +94,12 @@ public class DAOHabitacion {
 	}
 
 
-	public void reservar(int idHabitacion) throws SQLException, Exception {
+	public void reservar(int idHabitacion, int idReserva) throws SQLException, Exception {
 
-		String sql = String.format("UPDATE %1$s.HABITACION SET OCUPADA = %2$s WHERE HABITACIONID = %3$s", 
+		String sql = String.format("UPDATE %1$s.HABITACION SET OCUPADA = %2$s, RESERVAID = %3$s WHERE HABITACIONID = %3$s", 
 				USUARIO, 
 				1,
+				idReserva,
 				idHabitacion);
 
 		System.out.println(sql);
@@ -113,7 +116,53 @@ public class DAOHabitacion {
 
 		return hab.getOcupada();
 	}
+	
+	//TODO: creado desocuparcolectiva
+	public void desocuparColectiva(int idReserva) throws SQLException
+	{
+		
+		String sql = String.format("UPDATE %1$s.HABITACION SET OCUPADA = %2$s WHERE RESERVAID = %3$s", 
+				USUARIO, 
+				0,
+				idReserva);
 
+		System.out.println(sql);
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		prepStmt.executeQuery();
+		
+	}
+	
+	public void desHabilitarHabitacion(int idHabitacion) throws SQLException
+	{
+		
+		String sql = String.format("UPDATE %1$s.HABITACION SET HABILITADO = %2$s , OCUPADA = 0, RESERVAID = NULL WHERE HABITACIONID = %3$s", 
+				USUARIO, 
+				0,
+				idHabitacion);
+
+		System.out.println(sql);
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		prepStmt.executeQuery();
+		
+	}
+	
+	public void reHabilitarHabitacion(int idHabitacion) throws SQLException
+	{
+		
+		String sql = String.format("UPDATE %1$s.HABITACION SET HABILITADO = %2$s , OCUPADA = 0 WHERE HABITACIONID = %3$s", 
+				USUARIO, 
+				1,
+				idHabitacion);
+
+		System.out.println(sql);
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		prepStmt.executeQuery();
+		
+	}
+	
 
 	/**
 	 * Metodo que obtiene la informacion de la habitacion en la Base de Datos que tiene el identificador dado por parametro<br/>
@@ -129,7 +178,8 @@ public class DAOHabitacion {
 		Habitacion habitacion = null;
 
 		String sql = String.format("SELECT * FROM %1$s.HABITACION WHERE HABITACIONID = %2$d", USUARIO, id); 
-
+		
+		
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		recursos.add(prepStmt);
 		ResultSet rs = prepStmt.executeQuery();
@@ -155,15 +205,15 @@ public class DAOHabitacion {
 	public ArrayList<Habitacion> getHabitacionesCondicion(String condicion) throws SQLException, Exception 
 	{
 		ArrayList<Habitacion> habitaciones = new ArrayList<>(); 
-
-		String sql = String.format("SELECT * FROM %1$s.HABITACION WHERE %2$d", USUARIO, condicion); 
-
+		System.out.println("Get de habitaciones con condicion = " + condicion);
+		String sql = String.format("SELECT * FROM %1$s.HABITACION WHERE %2$s", USUARIO, condicion); 
+		System.out.println(sql);
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		recursos.add(prepStmt);
 		ResultSet rs = prepStmt.executeQuery();
 
 		while (rs.next()) {
-			System.out.println("entra al next");
+			
 
 			Habitacion habitacion = convertResultSetToHabitacion(rs);
 
@@ -177,6 +227,42 @@ public class DAOHabitacion {
 
 	
 
+	public ArrayList<Integer> getReservasId(int idHotel) throws SQLException, Exception 
+	{
+		ArrayList<Integer> ids = new ArrayList<>(); 
+		
+
+		String sql = String.format("SELECT * FROM %1$s.HABITACION WHERE HOTELERIAID = %2$s", USUARIO, idHotel); 
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+
+		while (rs.next()) {
+			
+
+			int id = getReservaId(rs);
+
+			
+			ids.add(id);
+		}
+
+
+		return ids;
+	}
+	
+	
+
+	public void setReservaId(int idReserva, int idHabitacion) throws SQLException, Exception 
+	{
+		
+		
+
+		String sql = String.format("UPDATE %1$s.HABITACION SET RESERVAID = %2$s, OCUPADA = 1 WHERE HABITACIONID = %3$s AND HABILITADO = 1 AND OCUPADA = 0", USUARIO, idReserva, idHabitacion); 
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		
+	}
 
 	public void deleteHabitacion(Habitacion habitacion) throws SQLException
 	{
@@ -251,6 +337,16 @@ public class DAOHabitacion {
 
 		return habitacion;
 	}
+	
+	public int getReservaId(ResultSet rs) throws SQLException
+	{
+		
+		
+		int id = rs.getInt("RESERVAID");
+		
+		return id; 
+	}
+	
 
 
 }

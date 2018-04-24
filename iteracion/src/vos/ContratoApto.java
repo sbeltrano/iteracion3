@@ -15,6 +15,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 		"id": 1,
 		"cliente" : null,
 		"incluyeServPublicos" : true, 
+		"incluyeAdmin": true,
 		"precioServicio" : false, 
 		"apartamento" : null
 	}

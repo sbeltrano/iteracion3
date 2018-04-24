@@ -23,6 +23,7 @@ import vos.ContratoVivienda;
 import vos.Hotel;
 import vos.Reserva;
 import vos.ReservaColectiva;
+import vos.Respuesta;
 import vos.Servicios;
 
 @Path ("reservas")
@@ -167,12 +168,11 @@ public class ReservaService {
 				
 				try {	
 						
-						
 				
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
-					tm.agregarReservaColectiva(reservaColectiva);
-						
-						return Response.status(200).entity(reservaColectiva).build();
+					Respuesta respuesta = tm.agregarReservaColectiva(reservaColectiva);
+						System.out.println(respuesta);
+						return Response.status(200).entity(respuesta).build();
 				} 
 				catch (Exception e) {
 					return Response.status(500).entity(doErrorMessage(e)).build();
@@ -243,13 +243,13 @@ public class ReservaService {
 			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 			 */		
 			@DELETE
-			@Path("reservacolectiva/{id: \\d+}")
+			@Path("/colectiva/{id: \\d+}")
 			@Consumes({ MediaType.APPLICATION_JSON })
 			@Produces({ MediaType.APPLICATION_JSON })
 			public Response deleteReservaTrue(@PathParam("id") int id) {	
 				
 				try {
-					
+					System.out.println("Entra al service de delete");
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
 					tm.deleteReservaColectiva(id);
