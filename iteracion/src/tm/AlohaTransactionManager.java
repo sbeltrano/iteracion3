@@ -49,6 +49,7 @@ import vos.RFC1;
 import vos.RFC10;
 import vos.RFC11;
 import vos.RFC12;
+import vos.RFC12b;
 import vos.RFC13;
 import vos.Reserva;
 import vos.ReservaColectiva;
@@ -3192,6 +3193,114 @@ public class AlohaTransactionManager {
 			}
 			return alojamientos;
 		}
+		
+		public List<RFC13> rfc13CostoAptos() throws Exception {
+			DAORFC13 daoRFC9 = new DAORFC13();
+			List<RFC13> alojamientos;
+			try 
+			{
+				this.conn = darConexion();
+				daoRFC9.setConn(conn);
+
+				alojamientos = daoRFC9.rfc13CostosApto();
+			}
+			catch (SQLException sqlException) {
+				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+				sqlException.printStackTrace();
+				throw sqlException;
+			} 
+			catch (Exception exception) {
+				System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			} 
+			finally {
+				try {
+					daoRFC9.cerrarRecursos();
+					if(this.conn!=null){
+						this.conn.close();					
+					}
+				}
+				catch (SQLException exception) {
+					System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+					exception.printStackTrace();
+					throw exception;
+				}
+			}
+			return alojamientos;
+		}
+		
+		public List<RFC13> rfc13Hab() throws Exception {
+			DAORFC13 daoRFC9 = new DAORFC13();
+			List<RFC13> alojamientos;
+			try 
+			{
+				this.conn = darConexion();
+				daoRFC9.setConn(conn);
+
+				alojamientos = daoRFC9.rfc13CostosHabitacion();
+			}
+			catch (SQLException sqlException) {
+				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+				sqlException.printStackTrace();
+				throw sqlException;
+			} 
+			catch (Exception exception) {
+				System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			} 
+			finally {
+				try {
+					daoRFC9.cerrarRecursos();
+					if(this.conn!=null){
+						this.conn.close();					
+					}
+				}
+				catch (SQLException exception) {
+					System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+					exception.printStackTrace();
+					throw exception;
+				}
+			}
+			return alojamientos;
+		}
+		
+		public List<RFC13> rfc13Vivienda() throws Exception {
+			DAORFC13 daoRFC9 = new DAORFC13();
+			List<RFC13> alojamientos;
+			try 
+			{
+				this.conn = darConexion();
+				daoRFC9.setConn(conn);
+
+				alojamientos = daoRFC9.rfc13CostosVivienda();
+			}
+			catch (SQLException sqlException) {
+				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+				sqlException.printStackTrace();
+				throw sqlException;
+			} 
+			catch (Exception exception) {
+				System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			} 
+			finally {
+				try {
+					daoRFC9.cerrarRecursos();
+					if(this.conn!=null){
+						this.conn.close();					
+					}
+				}
+				catch (SQLException exception) {
+					System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+					exception.printStackTrace();
+					throw exception;
+				}
+			}
+			return alojamientos;
+		}
 
 		public List<RFC13> rfc13year(int year) throws Exception {
 			DAORFC13 daoRFC9 = new DAORFC13();
@@ -3229,7 +3338,7 @@ public class AlohaTransactionManager {
 			return alojamientos;
 		}
 
-		public List<RFC12> rfc12(int year) throws Exception{
+		public List<RFC12> rfc12Max(int year) throws Exception{
 			DAORFC12 daoRFC9 = new DAORFC12();
 			List<RFC12> alojamientos;
 			try 
@@ -3237,7 +3346,115 @@ public class AlohaTransactionManager {
 				this.conn = darConexion();
 				daoRFC9.setConn(conn);
 
-				alojamientos = daoRFC9.rfc12(year);
+				alojamientos = daoRFC9.rfc12Max(year);
+			}
+			catch (SQLException sqlException) {
+				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+				sqlException.printStackTrace();
+				throw sqlException;
+			} 
+			catch (Exception exception) {
+				System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			} 
+			finally {
+				try {
+					daoRFC9.cerrarRecursos();
+					if(this.conn!=null){
+						this.conn.close();					
+					}
+				}
+				catch (SQLException exception) {
+					System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+					exception.printStackTrace();
+					throw exception;
+				}
+			}
+			return alojamientos;
+		}
+		
+		public List<RFC12> rfc12Min(int year) throws Exception{
+			DAORFC12 daoRFC9 = new DAORFC12();
+			List<RFC12> alojamientos;
+			try 
+			{
+				this.conn = darConexion();
+				daoRFC9.setConn(conn);
+
+				alojamientos = daoRFC9.rfc12Min(year);
+			}
+			catch (SQLException sqlException) {
+				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+				sqlException.printStackTrace();
+				throw sqlException;
+			} 
+			catch (Exception exception) {
+				System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			} 
+			finally {
+				try {
+					daoRFC9.cerrarRecursos();
+					if(this.conn!=null){
+						this.conn.close();					
+					}
+				}
+				catch (SQLException exception) {
+					System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+					exception.printStackTrace();
+					throw exception;
+				}
+			}
+			return alojamientos;
+		}
+		
+		public List<RFC12b> rfc12MinOperadores(int year) throws Exception{
+			DAORFC12 daoRFC9 = new DAORFC12();
+			List<RFC12b> alojamientos;
+			try 
+			{
+				this.conn = darConexion();
+				daoRFC9.setConn(conn);
+
+				alojamientos = daoRFC9.rfc12MinOperador(year);
+			}
+			catch (SQLException sqlException) {
+				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+				sqlException.printStackTrace();
+				throw sqlException;
+			} 
+			catch (Exception exception) {
+				System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			} 
+			finally {
+				try {
+					daoRFC9.cerrarRecursos();
+					if(this.conn!=null){
+						this.conn.close();					
+					}
+				}
+				catch (SQLException exception) {
+					System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+					exception.printStackTrace();
+					throw exception;
+				}
+			}
+			return alojamientos;
+		}
+		
+		public List<RFC12b> rfc12MaxOperadores(int year) throws Exception{
+			DAORFC12 daoRFC9 = new DAORFC12();
+			List<RFC12b> alojamientos;
+			try 
+			{
+				this.conn = darConexion();
+				daoRFC9.setConn(conn);
+
+				alojamientos = daoRFC9.rfc12MaxOperador(year);
 			}
 			catch (SQLException sqlException) {
 				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());

@@ -21,55 +21,105 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class RFC12 {
 
 	
-	@JsonProperty(value="carnet")
-	private int carnet;
+	@JsonProperty(value="week")
+	private String week;
 	
-	@JsonProperty(value="nombre")
-	private String nombre;
+	@JsonProperty(value="startWeek")
+	private String startWeek;
 
-	@JsonProperty(value="operadorId")
-	private int operadorId;
+	@JsonProperty(value="endWeek")
+	private String endWeek;
+	
+	@JsonProperty(value="aptoId")
+	private int aptoId;
+	
+	@JsonProperty(value="viviendaId")
+	private int viviendaId;
+	
+	@JsonProperty(value="habitacionId")
+	private int habitacionId;
+	
+	
 
-	public int getCarnet() {
-		return carnet;
+	public String getWeek() {
+		return week;
 	}
 
 
 
-	public void setCarnet(int carnet) {
-		this.carnet = carnet;
+	public void setWeek(String week) {
+		this.week = week;
 	}
 
 
 
-	public String getNombre() {
-		return nombre;
+	public String getStartWeek() {
+		return startWeek;
 	}
 
 
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setStartWeek(String startWeek) {
+		this.startWeek = startWeek;
 	}
 
 
 
-	public int getOperadorId() {
-		return operadorId;
+	public String getEndWeek() {
+		return endWeek;
 	}
 
 
 
-	public void setOperadorId(int operadorId) {
-		this.operadorId = operadorId;
+	public void setEndWeek(String endWeek) {
+		this.endWeek = endWeek;
 	}
 
 
 
-	public RFC12(@JsonProperty(value = "tipoAlojamiento")int carnet, @JsonProperty(value = "alojamientoId") int operadorId,  @JsonProperty(value = "descripcion")String nombre) {
-		this.carnet = carnet;
-		this.operadorId = operadorId;
-		this.nombre = nombre;
+	public int getAptoId() {
+		return aptoId;
+	}
+
+
+
+	public void setAptoId(int aptoId) {
+		this.aptoId = aptoId;
+	}
+
+
+
+	public int getViviendaId() {
+		return viviendaId;
+	}
+
+
+
+	public void setViviendaId(int viviendaId) {
+		this.viviendaId = viviendaId;
+	}
+
+
+
+	public int getHabitacionId() {
+		return habitacionId;
+	}
+
+
+
+	public void setHabitacionId(int habitacionId) {
+		this.habitacionId = habitacionId;
+	}
+
+
+
+	public RFC12(@JsonProperty(value = "week")String week, @JsonProperty(value = "startWeek")String startWeek, @JsonProperty(value = "endWeek")String endWeek, @JsonProperty(value = "habitacionId")int habitacionId, @JsonProperty(value = "viviendaId")int viviendaId, @JsonProperty(value = "aptoId")int aptoId) {
+		this.week = week;
+		this.startWeek = startWeek;
+		this.endWeek = endWeek;
+		this.habitacionId = habitacionId;
+		this.viviendaId = viviendaId;
+		this.aptoId = aptoId;
 	}
 	
 }

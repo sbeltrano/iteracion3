@@ -59,22 +59,88 @@ public class DAORFC13 {
 		recursos = new ArrayList<Object>();
 	}
 
-	public ArrayList<RFC13> rfc13Costos() throws SQLException
+	public ArrayList<RFC13> rfc13CostosApto() throws SQLException
 	{
-		String sql = String.format("SELECT apa.APARTAMENTOID \n" + 
-				"		FROM %1$s.APARTAMENTO apa\n" + 
-				"		WHERE apa.APARTAMENTOID NOT IN (SELECT APTOID FROM %1$s.RESERVASHISTORICASAPTOS)\n" + 
-				"		UNION\n" + 
-				"		SELECT rd.APTOID\n" + 
+		String sql = String.format("SELECT *\n" + 
 				"		FROM\n" + 
-				"		(SELECT ra.APTOID, SUM(re.FECHAFINAL - re.FECHAINICIAL) AS tDias\n" + 
-				"		FROM %1$s.RESERVASHISTORICASAPTOS ra, %1$s.RESERVA re\n" + 
-				"		WHERE ra.RESERVAID = re.RESERVAID\n" + 
-				"		GROUP BY ra.APTOID) rd\n" + 
-				"		WHERE rd.tdias < 31", USUARIO);
+				"		(SELECT RES.COMUNIDADID\n" + 
+				"		FROM\n" + 
+				"		(SELECT RHA.RESERVAID\n" + 
+				"		FROM\n" + 
+				"		(SELECT APARTAMENTO.APARTAMENTOID\n" + 
+				"		FROM %1$s.APARTAMENTO\n" + 
+				"		WHERE APARTAMENTO.PRECIONOCHE > 40000) KOK, %1$s.RESERVASHISTORICASAPTOS RHA\n" + 
+				"		WHERE RHA.APTOID=KOK.APARTAMENTOID) KIK, %1$s.RESERVA RES\n" + 
+				"		WHERE RES.RESERVAID=KIK.RESERVAID) ron, %1$s.COMUNIDAD co\n" + 
+				"		WHERE co.COMUNIDADID=ron.COMUNIDADID", USUARIO);
 		
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		
+		System.out.println("SentenciaMakiaRFC4 = "+sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		ArrayList<RFC13> rfc4 = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next RFC1");
+
+			RFC13 reserva = convertResultSetToReservaApartamento(rs);
+
+			if(reserva!= null)
+			rfc4.add(reserva);
+		}
+		return rfc4;
+
+	}
+	
+	public ArrayList<RFC13> rfc13CostosVivienda() throws SQLException
+	{
+		String sql = String.format("SELECT *\n" + 
+				"		FROM\n" + 
+				"		(SELECT RES.COMUNIDADID\n" + 
+				"		FROM\n" + 
+				"		(SELECT RHA.RESERVAID\n" + 
+				"		FROM\n" + 
+				"		(SELECT VIVIENDA.VIVIENDAID\n" + 
+				"		FROM %1$s.VIVIENDA\n" + 
+				"		WHERE VIVIENDA.PRECIONOCHE > 40000) KOK, %1$s.RESERVASHISTORICASVIVIENDAS RHA\n" + 
+				"		WHERE RHA.VIVIENDAID=KOK.VIVIENDAID) KIK, %1$s.RESERVA RES\n" + 
+				"		WHERE RES.RESERVAID=KIK.RESERVAID) ron, %1$s.COMUNIDAD co\n" + 
+				"		WHERE co.COMUNIDADID=ron.COMUNIDADID", USUARIO);
 		
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		
+		System.out.println("SentenciaMakiaRFC4 = "+sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		ArrayList<RFC13> rfc4 = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next RFC1");
+
+			RFC13 reserva = convertResultSetToReservaApartamento(rs);
+
+			if(reserva!= null)
+			rfc4.add(reserva);
+		}
+		return rfc4;
+
+	}
+	
+	public ArrayList<RFC13> rfc13CostosHabitacion() throws SQLException
+	{
+		String sql = String.format("SELECT *\n" + 
+				"		FROM\n" + 
+				"		(SELECT RES.COMUNIDADID\n" + 
+				"		FROM\n" + 
+				"		(SELECT RHA.RESERVAID\n" + 
+				"		FROM\n" + 
+				"		(SELECT HABITACION.HABITACIONID\n" + 
+				"		FROM %1$s.HABITACION\n" + 
+				"		WHERE HABITACION.PRECIONOCHE > 40000) KOK, %1$s.RESERVASHISTORICASHABITACIONES RHA\n" + 
+				"		WHERE RHA.HABITACIONID=KOK.HABITACIONID) KIK, %1$s.RESERVA RES\n" + 
+				"		WHERE RES.RESERVAID=KIK.RESERVAID) ron, %1$s.COMUNIDAD co\n" + 
+				"		WHERE co.COMUNIDADID=ron.COMUNIDADID", USUARIO);
 				
 		
 		PreparedStatement prepStmt = conn.prepareStatement(sql);

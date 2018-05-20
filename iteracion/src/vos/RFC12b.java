@@ -21,48 +21,73 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class RFC12b {
 
 	
-	@JsonProperty(value="tipoAlojamiento")
-	private String tipoAlojamiento;
+	@JsonProperty(value="week")
+	private String week;
 	
-	@JsonProperty(value="descripcion")
-	private String descripcion;
+	@JsonProperty(value="startWeek")
+	private String startWeek;
 
-	@JsonProperty(value="alojamientoId")
-	private int alojamientoId;
+	@JsonProperty(value="endWeek")
+	private String endWeek;
 	
-	public String getDescripcion() {
-		return descripcion;
+	@JsonProperty(value="operadorId")
+	private int operadorId;
+	
+	
+
+	public String getWeek() {
+		return week;
 	}
 
 
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
 
-	public String getTipoAlojamiento() {
-		return tipoAlojamiento;
+	public void setWeek(String week) {
+		this.week = week;
 	}
 
 
-	public void setTipoAlojamiento(String tipoAlojamiento) {
-		this.tipoAlojamiento = tipoAlojamiento;
+
+	public String getStartWeek() {
+		return startWeek;
 	}
 
 
-	public int getAlojamientoId() {
-		return alojamientoId;
+
+	public void setStartWeek(String startWeek) {
+		this.startWeek = startWeek;
 	}
 
 
-	public void setAlojamientoId(int alojamientoId) {
-		this.alojamientoId = alojamientoId;
+
+	public String getEndWeek() {
+		return endWeek;
 	}
 
 
-	public RFC12b(@JsonProperty(value = "tipoAlojamiento")String tipoAlojamiento, @JsonProperty(value = "alojamientoId") int alojamientoId,  @JsonProperty(value = "descripcion")String descripcion) {
-		this.tipoAlojamiento = tipoAlojamiento;
-		this.alojamientoId = alojamientoId;
-		this.descripcion = descripcion;
+
+	public void setEndWeek(String endWeek) {
+		this.endWeek = endWeek;
+	}
+
+
+
+	public int getOperadorId() {
+		return operadorId;
+	}
+
+
+
+	public void setOperadorId(int operadorId) {
+		this.operadorId = operadorId;
+	}
+
+
+
+	public RFC12b(@JsonProperty(value = "week")String week, @JsonProperty(value = "startWeek")String startWeek, @JsonProperty(value = "endWeek")String endWeek, @JsonProperty(value = "operadorId")int operadorId) {
+		this.week = week;
+		this.startWeek = startWeek;
+		this.endWeek = endWeek;
+		this.operadorId = operadorId;
 	}
 	
 }

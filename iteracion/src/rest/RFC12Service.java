@@ -23,6 +23,7 @@ import vos.ContratoVivienda;
 import vos.Hotel;
 import vos.RFC1;
 import vos.RFC12;
+import vos.RFC12b;
 import vos.RFC2;
 import vos.RFC4;
 import vos.RFC8;
@@ -78,7 +79,7 @@ public class RFC12Service {
 			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 			 */			
 			@GET
-			@Path("/year/{yearId: .+}")
+			@Path("/alojamientos/max/year/{yearId: .+}")
 			@Consumes({ MediaType.APPLICATION_JSON })
 			@Produces({ MediaType.APPLICATION_JSON })
 			public Response getAlojamientosDisponiblesEnRangoFechasApartamentos(@PathParam("yearId") int yearId) {
@@ -87,7 +88,67 @@ public class RFC12Service {
 					
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
-					List<RFC12> rfc4 = tm.rfc12(yearId);
+					List<RFC12> rfc4 = tm.rfc12Max(yearId);
+					
+					
+					return Response.status(200).entity(rfc4).build();
+				} 
+				catch (Exception e) {
+					return Response.status(500).entity(doErrorMessage(e)).build();
+				}
+			}
+			
+			@GET
+			@Path("/alojamientos/min/year/{yearId: .+}")
+			@Consumes({ MediaType.APPLICATION_JSON })
+			@Produces({ MediaType.APPLICATION_JSON })
+			public Response getAlojamientosDisponiblesEnRangoFechasApartamentosde(@PathParam("yearId") int yearId) {
+				
+				try {
+					
+					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+					
+					List<RFC12> rfc4 = tm.rfc12Min(yearId);
+					
+					
+					return Response.status(200).entity(rfc4).build();
+				} 
+				catch (Exception e) {
+					return Response.status(500).entity(doErrorMessage(e)).build();
+				}
+			}
+			
+			@GET
+			@Path("/operadores/min/year/{yearId: .+}")
+			@Consumes({ MediaType.APPLICATION_JSON })
+			@Produces({ MediaType.APPLICATION_JSON })
+			public Response RFC12(@PathParam("yearId") int yearId) {
+				
+				try {
+					
+					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+					
+					List<RFC12b> rfc4 = tm.rfc12MinOperadores(yearId);
+					
+					
+					return Response.status(200).entity(rfc4).build();
+				} 
+				catch (Exception e) {
+					return Response.status(500).entity(doErrorMessage(e)).build();
+				}
+			}
+			
+			@GET
+			@Path("/operadores/max/year/{yearId: .+}")
+			@Consumes({ MediaType.APPLICATION_JSON })
+			@Produces({ MediaType.APPLICATION_JSON })
+			public Response RFC12maxop(@PathParam("yearId") int yearId) {
+				
+				try {
+					
+					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+					
+					List<RFC12b> rfc4 = tm.rfc12MaxOperadores(yearId);
 					
 					
 					return Response.status(200).entity(rfc4).build();
