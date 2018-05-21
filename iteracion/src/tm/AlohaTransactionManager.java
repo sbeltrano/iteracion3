@@ -47,6 +47,7 @@ import vos.Hotel;
 import vos.PersonaOperador;
 import vos.RFC1;
 import vos.RFC10;
+import vos.RFC10b;
 import vos.RFC11;
 import vos.RFC12;
 import vos.RFC12b;
@@ -3527,6 +3528,42 @@ public class AlohaTransactionManager {
 				daoRFC7.setConn(conn);
 
 				alojamientos = daoRFC7.rfc10Rol(fechaInicial, fechaFinal);
+			}
+			catch (SQLException sqlException) {
+				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());
+				sqlException.printStackTrace();
+				throw sqlException;
+			} 
+			catch (Exception exception) {
+				System.err.println("[EXCEPTION] General Exception:" + exception.getMessage());
+				exception.printStackTrace();
+				throw exception;
+			} 
+			finally {
+				try {
+					daoRFC7.cerrarRecursos();
+					if(this.conn!=null){
+						this.conn.close();					
+					}
+				}
+				catch (SQLException exception) {
+					System.err.println("[EXCEPTION] SQLException While Closing Resources:" + exception.getMessage());
+					exception.printStackTrace();
+					throw exception;
+				}
+			}
+			return alojamientos;
+		}
+		
+		public List<RFC10b> rfc10Cliente(String fechaInicial,String fechaFinal, int carnet) throws Exception {
+			DAORFC10 daoRFC7 = new DAORFC10();
+			List<RFC10b> alojamientos;
+			try 
+			{
+				this.conn = darConexion();
+				daoRFC7.setConn(conn);
+
+				alojamientos = daoRFC7.rfc10Cliente(fechaInicial, fechaFinal, carnet);
 			}
 			catch (SQLException sqlException) {
 				System.err.println("[EXCEPTION] SQLException:" + sqlException.getMessage());

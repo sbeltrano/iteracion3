@@ -15,6 +15,7 @@ import vos.Habitacion;
 import vos.PersonaOperador;
 import vos.RFC1;
 import vos.RFC10;
+import vos.RFC10b;
 import vos.RFC2;
 import vos.RFC4;
 import vos.RFC7;
@@ -59,6 +60,49 @@ public class DAORFC10 {
 		recursos = new ArrayList<Object>();
 	}
 
+	public ArrayList<RFC10b> rfc10Cliente(String fechaInicial, String fechaFinal, int carnet) throws SQLException
+	{
+		String sql = String.format("SELECT r.COMUNIDADID, r.TIPOR, r.FECHAINICIAL, r.FECHAFINAL\n" + 
+				"		from %1$s.RESERVA  r\n" + 
+				"		WHERE  '%2$s' BETWEEN r.FECHAINICIAL AND r.FECHAFINAL AND \n" + 
+				"		'%3$s' BETWEEN r.FECHAINICIAL AND r.FECHAFINAL  AND r.COMUNIDADID='%4$d'\n" + 
+				"		UNION\n" + 
+				"		SELECT r.COMUNIDADID, r.TIPOR, r.FECHAINICIAL, r.FECHAFINAL\n" + 
+				"		from %1$s.RESERVA r\n" + 
+				"		WHERE  '%2$s' NOT BETWEEN r.FECHAINICIAL AND r.FECHAFINAL AND \n" + 
+				"		'%3$s' BETWEEN r.FECHAINICIAL AND r.FECHAFINAL  AND r.COMUNIDADID='%4$d'\n" + 
+				"		UNION\n" + 
+				"		SELECT  r.COMUNIDADID, r.TIPOR, r.FECHAINICIAL, r.FECHAFINAL\n" + 
+				"		from %1$s.RESERVA r\n" + 
+				"		WHERE  '%2$s' BETWEEN r.FECHAINICIAL AND r.FECHAFINAL AND \n" + 
+				"		'%3$s' NOT BETWEEN r.FECHAINICIAL AND r.FECHAFINAL  AND r.COMUNIDADID='%4$d'\n" + 
+				"		UNION\n" + 
+				"		SELECT r.COMUNIDADID, r.TIPOR, r.FECHAINICIAL, r.FECHAFINAL\n" + 
+				"		from %1$s.RESERVA r\n" + 
+				"		WHERE  '%2$s' < r.FECHAINICIAL AND \n" + 
+				"		'%3$s' > R.FECHAFINAL AND r.COMUNIDADID='%4$d'", USUARIO, fechaInicial, fechaFinal, carnet );
+		
+		
+		
+		PreparedStatement prepStmt = conn.prepareStatement(sql);
+		
+		System.out.println("SentenciaMakiaRFC4 = "+sql);
+		recursos.add(prepStmt);
+		ResultSet rs = prepStmt.executeQuery();
+		ArrayList<RFC10b> rfc4 = new ArrayList<>();
+
+		while (rs.next()) {
+			System.out.println("entra al next RFC1");
+
+			RFC10b reserva = convertResultSetRFC10CLIENTE(rs);
+
+			if(reserva!= null)
+			rfc4.add(reserva);
+		}
+		return rfc4;
+
+	}
+	
 	public ArrayList<RFC10> rfc10Nombre(String fechaInicial, String fechaFinal) throws SQLException
 	{
 		String sql = String.format("SELECT DISTINCT RES.COMUNIDADID, CO.NOMBRE, CO.ROL, CO.CARNET\n" + 
@@ -244,12 +288,25 @@ public class DAORFC10 {
 		RFC10 rfc4 = null;
 
 		int id = resultSet.getInt("COMUNIDADID");
-		String nombre = "NOMBRE";
+		String nombre = resultSet.getString("NOMBRE");
 		int carnet = resultSet.getInt("CARNET");
-		String rol = "ROL";
+		String rol = resultSet.getString("ROL");
 		rfc4 = new RFC10(nombre,id,rol,carnet);
 
 		return rfc4;
 	}
 
+	public RFC10b convertResultSetRFC10CLIENTE(ResultSet resultSet) throws SQLException {
+
+
+		RFC10b rfc4 = null;
+
+		int id = resultSet.getInt("COMUNIDADID");
+		String fechaInicial = resultSet.getString("FECHAINICIAL");
+		String fechaFinal = resultSet.getString("FECHAFINAL");
+		String tipo = resultSet.getString("TIPOR");
+		rfc4 = new RFC10b(fechaInicial,id,fechaFinal,tipo);
+		
+		return rfc4;
+	}
 }

@@ -15,6 +15,7 @@ import vos.Habitacion;
 import vos.PersonaOperador;
 import vos.RFC1;
 import vos.RFC10;
+import vos.RFC10b;
 import vos.RFC11;
 import vos.RFC2;
 import vos.RFC4;
@@ -59,7 +60,7 @@ public class DAORFC11 {
 	public DAORFC11() {
 		recursos = new ArrayList<Object>();
 	}
-
+	
 	public ArrayList<RFC11> rfc11Nombre(String fechaInicial, String fechaFinal) throws SQLException
 	{
 		String sql = String.format("SELECT DISTINCT RES.COMUNIDADID, CO.NOMBRE, CO.ROL, CO.CARNET\n" + 
@@ -83,7 +84,7 @@ public class DAORFC11 {
 				"		from %1$s.RESERVA r\n" + 
 				"		WHERE  '%2$s' > r.FECHAINICIAL AND \n" + 
 				"		'%3$s' < R.FECHAFINAL) RES, %1$s.COMUNIDAD CO\n" + 
-				"		WHERE RES.COMUNIDADID NOT IN CO.COMUNIDADID\n" + 
+				"		WHERE RES.COMUNIDADID IN CO.COMUNIDADID\n" + 
 				"		ORDER BY CO.NOMBRE", USUARIO, fechaInicial, fechaFinal );
 		
 		
@@ -129,7 +130,7 @@ public class DAORFC11 {
 				"		from %1$s.RESERVA r\n" + 
 				"		WHERE  '%2$s' > r.FECHAINICIAL AND \n" + 
 				"		'%3$s' < R.FECHAFINAL) RES, %1$s.COMUNIDAD CO\n" + 
-				"		WHERE RES.COMUNIDADID NOT IN CO.COMUNIDADID\n" + 
+				"		WHERE RES.COMUNIDADID IN CO.COMUNIDADID\n" + 
 				"		ORDER BY CO.CARNET", USUARIO, fechaInicial, fechaFinal );
 		
 		
@@ -178,7 +179,7 @@ public class DAORFC11 {
 				"		from %1$s.RESERVA r\n" + 
 				"		WHERE  '%2$s' > r.FECHAINICIAL AND \n" + 
 				"		'%3$s' < R.FECHAFINAL) RES, %1$s.COMUNIDAD CO\n" + 
-				"		WHERE RES.COMUNIDADID NOT IN CO.COMUNIDADID\n" + 
+				"		WHERE RES.COMUNIDADID IN CO.COMUNIDADID\n" + 
 				"		ORDER BY CO.ROL", USUARIO, fechaInicial, fechaFinal );
 		
 		
@@ -245,9 +246,9 @@ public class DAORFC11 {
 		RFC11 rfc4 = null;
 
 		int id = resultSet.getInt("COMUNIDADID");
-		String nombre = "NOMBRE";
+		String nombre = resultSet.getString("NOMBRE");
 		int carnet = resultSet.getInt("CARNET");
-		String rol = "ROL";
+		String rol = resultSet.getString("ROL");
 		rfc4 = new RFC11(nombre,id,rol,carnet);
 
 		return rfc4;

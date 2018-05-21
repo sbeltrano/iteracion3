@@ -90,7 +90,6 @@ public class RFC11Service {
 					
 					List<RFC11> rfc4 = tm.rfc11Carnet(fechaInicial, fechaFinal);
 					
-					
 					return Response.status(200).entity(rfc4).build();
 				} 
 				catch (Exception e) {

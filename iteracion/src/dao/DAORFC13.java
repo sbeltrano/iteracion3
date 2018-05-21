@@ -162,14 +162,14 @@ public class DAORFC13 {
 
 	}
 	
-	public ArrayList<RFC13> rfc13Mes() throws SQLException
+	public ArrayList<RFC13> rfc13Mes(int year) throws SQLException
 	{
 		String sql = String.format("SELECT DAT.COMUNIDADID, CID.CARNET, CID.NOMBRE\n" + 
 				"		FROM\n" + 
 				"		(SELECT RES.COMUNIDADID\n" + 
 				"		FROM %1$s.RESERVA RES\n" + 
-				"		WHERE RES.FECHAINICIAL BETWEEN TO_DATE('01-07-2018') AND TO_DATE('01-08-2018')) DAT, %1$s.COMUNIDAD CID\n" + 
-				"		WHERE CID.COMUNIDADID=DAT.COMUNIDADID", USUARIO);
+				"		WHERE RES.FECHAINICIAL BETWEEN TO_DATE('01-01-%2$d') AND TO_DATE('31-12-%2$d')) DAT, %1$s.COMUNIDAD CID\n" + 
+				"		WHERE CID.COMUNIDADID=DAT.COMUNIDADID", USUARIO, year);
 		
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		
@@ -200,7 +200,7 @@ public class DAORFC13 {
 				"		FROM\n" + 
 				"		(SELECT %1$s.HABITACION.HABITACIONID\n" + 
 				"		FROM %1$s.HABITACION\n" + 
-				"		WHERE %1$s.HABITACION.DESCRIPCION = 'SUITE') KOK, %1$s.RESERVASHISTORICASHABITACIONES RHA\n" + 
+				"		WHERE %1$s.HABITACION.DESCRIPCION = 'Suite') KOK, %1$s.RESERVASHISTORICASHABITACIONES RHA\n" + 
 				"		WHERE RHA.HABITACIONID=KOK.HABITACIONID) KIK, %1$s.RESERVA RES\n" + 
 				"		WHERE RES.RESERVAID=KIK.RESERVAID) REP, %1$s.COMUNIDAD COM\n" + 
 				"		WHERE COM.COMUNIDADID=REP.COMUNIDADID", USUARIO);
@@ -261,12 +261,11 @@ public class DAORFC13 {
 	 */
 	public RFC13 convertResultSetToReservaApartamento(ResultSet resultSet) throws SQLException {
 
-
 		RFC13 rfc4 = null;
 
 		int clienteId = resultSet.getInt("COMUNIDADID");
 		int carnet = resultSet.getInt("CARNET");
-		String nombre = "NOMBRE";
+		String nombre = resultSet.getString("NOMBRE");
 
 		rfc4 = new RFC13(nombre, clienteId, carnet);
 

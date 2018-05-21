@@ -105,7 +105,7 @@ public class RFC13Service {
 					
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
-					List<RFC9> rfc4 = tm.rfc9Viviendas();
+					List<RFC13> rfc4 = tm.rfc13CostoAptos();
 					
 					
 					return Response.status(200).entity(rfc4).build();
@@ -125,7 +125,7 @@ public class RFC13Service {
 					
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
-					List<RFC9> rfc4 = tm.rfc9Viviendas();
+					List<RFC13> rfc4 = tm.rfc13Vivienda();
 					
 					
 					return Response.status(200).entity(rfc4).build();
@@ -145,7 +145,7 @@ public class RFC13Service {
 					
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
-					List<RFC9> rfc4 = tm.rfc9Viviendas();
+					List<RFC13> rfc4 = tm.rfc13Hab();
 					
 					
 					return Response.status(200).entity(rfc4).build();

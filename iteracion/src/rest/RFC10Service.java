@@ -23,6 +23,7 @@ import vos.ContratoVivienda;
 import vos.Hotel;
 import vos.RFC1;
 import vos.RFC10;
+import vos.RFC10b;
 import vos.RFC2;
 import vos.RFC4;
 import vos.RFC8;
@@ -78,38 +79,51 @@ public class RFC10Service {
 			 * 			<b>Response Status 500</b> - Excepcion durante el transcurso de la transaccion
 			 */			
 			@GET
-			@Path("/carnet/fechaInicial/{fechaInicial: .+}/fechaFinal/{fechaFinal: .+}")
+			@Path("/carnet/fechaInicial/{fechaInicial: .+}/fechaFinal/{fechaFinal: .+}/carnet/{carnet: .+}")
 			@Consumes({ MediaType.APPLICATION_JSON })
 			@Produces({ MediaType.APPLICATION_JSON })
-			public Response getRFC10Carnet(@PathParam("fechaInicial") String fechaInicial, @PathParam("fechaFinal")String fechaFinal) {
+			public Response getRFC10Carnet(@PathParam("fechaInicial") String fechaInicial, @PathParam("fechaFinal")String fechaFinal,  @PathParam("carnet")int carnet) {
 				
 				try {
 					
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
+					List<RFC10> rfc4 = null;
+					if (carnet==0) {
+						rfc4 = tm.rfc10Carnet(fechaInicial, fechaFinal);
+						return Response.status(200).entity(rfc4).build();
+					}
+					else {
+						List<RFC10b> rfc5 = tm.rfc10Cliente(fechaInicial, fechaFinal, carnet); 
+						return Response.status(200).entity(rfc5).build();
+					}
 					
-					List<RFC10> rfc4 = tm.rfc10Carnet(fechaInicial, fechaFinal);
 					
-					
-					return Response.status(200).entity(rfc4).build();
 				} 
 				catch (Exception e) {
 					return Response.status(500).entity(doErrorMessage(e)).build();
 				}
 			}
 			@GET
-			@Path("/nombre/fechaInicial/{fechaInicial: .+}/fechaFinal/{fechaFinal: .+}")
+			@Path("/nombre/fechaInicial/{fechaInicial: .+}/fechaFinal/{fechaFinal: .+}/carnet/{carnet: .+}")
 			@Consumes({ MediaType.APPLICATION_JSON })
 			@Produces({ MediaType.APPLICATION_JSON })
-			public Response getRFC10Nombre(@PathParam("fechaInicial") String fechaInicial, @PathParam("fechaFinal")String fechaFinal) {
+			public Response getRFC10Nombre(@PathParam("fechaInicial") String fechaInicial, @PathParam("fechaFinal")String fechaFinal, @PathParam("carnet")int carnet) {
 				
 				try {
 					
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
-					List<RFC10> rfc4 = tm.rfc10Nombre(fechaInicial, fechaFinal);
+					List<RFC10> rfc4 = null;
+					if (carnet==0) {
+						rfc4 = tm.rfc10Nombre(fechaInicial, fechaFinal);
+						return Response.status(200).entity(rfc4).build();
+					}
+					else {
+						List<RFC10b> rfc5 = tm.rfc10Cliente(fechaInicial, fechaFinal, carnet); 
+						return Response.status(200).entity(rfc5).build();
+					}
+
 					
-					
-					return Response.status(200).entity(rfc4).build();
 				} 
 				catch (Exception e) {
 					return Response.status(500).entity(doErrorMessage(e)).build();
@@ -117,19 +131,24 @@ public class RFC10Service {
 			}
 			
 			@GET
-			@Path("/rol/fechaInicial/{fechaInicial: .+}/fechaFinal/{fechaFinal: .+}")
+			@Path("/rol/fechaInicial/{fechaInicial: .+}/fechaFinal/{fechaFinal: .+}/carnet/{carnet: .+}")
 			@Consumes({ MediaType.APPLICATION_JSON })
 			@Produces({ MediaType.APPLICATION_JSON })
-			public Response getRFC10Rol(@PathParam("fechaInicial") String fechaInicial, @PathParam("fechaFinal")String fechaFinal) {
+			public Response getRFC10Rol(@PathParam("fechaInicial") String fechaInicial, @PathParam("fechaFinal")String fechaFinal,  @PathParam("carnet")int carnet) {
 				
 				try {
 					
 					AlohaTransactionManager tm = new AlohaTransactionManager(getPath());
 					
-					List<RFC10> rfc4 = tm.rfc10Rol(fechaInicial, fechaFinal);
-					
-					
-					return Response.status(200).entity(rfc4).build();
+					List<RFC10> rfc4 = null;
+					if (carnet==0) {
+						rfc4 = tm.rfc10Rol(fechaInicial, fechaFinal);
+						return Response.status(200).entity(rfc4).build();
+					}
+					else {
+						List<RFC10b> rfc5 = tm.rfc10Cliente(fechaInicial, fechaFinal, carnet); 
+						return Response.status(200).entity(rfc5).build();
+					}
 				} 
 				catch (Exception e) {
 					return Response.status(500).entity(doErrorMessage(e)).build();
